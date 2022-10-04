@@ -10,12 +10,10 @@ dotenv.config({
       : path.join(__dirname, '../env/.env.development'),
 });
 
-console.log(path.join(__dirname, '../../migrations/*.{ts,js}'));
-
 export default new DataSource({
   type: 'postgres',
   host: process.env.DB_HOST,
-  port: +process.env.DB_PORT,
+  port: process.env.DB_PORT ? +process.env.DB_PORT : 5432,
   database: process.env.DB_DATABASE,
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
