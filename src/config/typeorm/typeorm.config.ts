@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import * as path from 'path';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
-const entitiesPath = path.join(__dirname + './../../entities/*/*.entity{.ts,.js}');
+const entitiesPath = path.join(__dirname + './../../entities/*/*.entity.js');
 
 export function getTypeormModule(): DynamicModule {
   return TypeOrmModule.forRootAsync({
