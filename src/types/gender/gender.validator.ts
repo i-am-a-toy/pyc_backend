@@ -4,6 +4,7 @@ import { Gender } from './gender.type';
 
 export const genderValidator = (params: TransformFnParams) => {
   const { value } = params;
+  if (!value) return Gender.NONE;
 
   const selectedGender = Gender.findByName(value);
   if (!selectedGender) {

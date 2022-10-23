@@ -4,6 +4,7 @@ import { Rank } from './rank.type';
 
 export const rankValidator = (params: TransformFnParams) => {
   const { value } = params;
+  if (!value) return Rank.NONE;
 
   const selectedRank = Rank.findByName(value);
   if (!selectedRank) {
