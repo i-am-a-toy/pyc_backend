@@ -5,7 +5,7 @@ import { PostgreSqlContainer, StartedPostgreSqlContainer } from 'testcontainers'
 import { DataSource, EntityNotFoundError, Repository } from 'typeorm';
 import { IChurchService } from '../../interfaces/church-service.interface';
 import { ChurchService } from '../church.service';
-import { mockChurchs, mockCreateChurchRequest, mockUpdateChurchRequest } from './mock';
+import { mockChurchs, mockCreateChurchRequest, mockUpdateChurchRequest } from 'src/utils/mocks/churches/mock';
 
 describe('ChurchService Test', () => {
   // for docker container (test container)
