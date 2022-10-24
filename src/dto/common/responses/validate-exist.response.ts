@@ -1,7 +1,7 @@
 export class ValidateExistResponse {
-  readonly exist: boolean;
+  readonly isExist: boolean;
 
   constructor(exist: boolean) {
-    this.exist = exist;
+    this.isExist = exist;
   }
 }
