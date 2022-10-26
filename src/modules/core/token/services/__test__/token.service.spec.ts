@@ -151,7 +151,7 @@ describe('Token Service Test', () => {
     ]);
 
     //when
-    const token = await tokenService.createToken('test', churchA.id, userA);
+    const token = await tokenService.createToken(churchA.id, 'test', userA);
 
     //then
     const verified = jwtService.verify<AccessTokenClaim>(token.accessToken);
@@ -235,7 +235,7 @@ describe('Token Service Test', () => {
       getMockUser('userA', Role.MEMBER, Rank.INFANT_BAPTISM, Gender.MALE, null),
     ]);
 
-    const token = await tokenService.createToken('test', churchA.id, userA);
+    const token = await tokenService.createToken(churchA.id, 'test', userA);
 
     //when
     const refreshed = await tokenService.refresh(token.accessToken);
@@ -279,7 +279,7 @@ describe('Token Service Test', () => {
       getMockUser('userA', Role.MEMBER, Rank.INFANT_BAPTISM, Gender.MALE, null),
     ]);
 
-    const token = await tokenService.createToken('test', churchA.id, userA);
+    const token = await tokenService.createToken(churchA.id, 'test', userA);
 
     //when
     await tokenService.removeToken(token.accessToken);

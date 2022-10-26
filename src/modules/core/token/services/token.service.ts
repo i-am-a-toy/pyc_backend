@@ -17,7 +17,7 @@ export class TokenService implements ITokenService {
     @InjectRepository(RefreshToken) private readonly refreshTokenRepository: Repository<RefreshToken>,
   ) {}
 
-  async createToken(id: string, churchId: number, user: User): Promise<{ accessToken: string }> {
+  async createToken(churchId: number, id: string, user: User): Promise<{ accessToken: string }> {
     const accessToken = this.jwtService.sign(
       new TokenClaim(id, churchId, user.id, user.name, user.role.enumName).toPlain(),
     );
