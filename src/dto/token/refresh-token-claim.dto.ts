@@ -4,4 +4,5 @@ export class RefreshTokenClaim {
   readonly userId: number;
   readonly exp: number;
   readonly iss: number;
+  readonly iat: number;
 }

@@ -15,13 +15,12 @@ export class AuthService implements IAuthService {
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
   ) {}
 
-  async login(churchId: number, name: string, password: string): Promise<LoginResponse> {
-    //find user
-    const target = await this.usersRepository.findOneByOrFail({ churchId, name });
+  async login(name: string, password: string): Promise<LoginResponse> {
+    const target = await this.usersRepository.findOneByOrFail({ name });
     if (!target.role.isLeader()) throw new ForbiddenException('새신자, 셀원은 로그인을 할 수 없습니다.');
 
     if (compareSync(password, target.password!)) {
-      const result = await this.tokenService.createToken(churchId, uuid(), target);
+      const result = await this.tokenService.createToken(target.churchId, uuid(), target);
       return new LoginResponse(result.accessToken);
     }
     throw new UnauthorizedException('비밀번호가 틀립니다.');
@@ -36,8 +35,14 @@ export class AuthService implements IAuthService {
     return new LoginResponse(result.accessToken);
   }
 
-  //TODO: 비밀번호 변경
   async chagePassword(id: number, prevPassword: string, newPassword: string): Promise<void> {
-    throw new Error('Method not implemented.');
+    const target = await this.usersRepository.findOneByOrFail({ id: id });
+    if (!target.role.isLeader()) throw new ForbiddenException('새신자, 셀원은 비밀번호를 수정할 수 없습니다.');
+    if (!compareSync(prevPassword, target.password!)) {
+      throw new UnauthorizedException('입력한 비밀번호가 기존 비밀번호와 다릅니다.');
+    }
+
+    target.changePassword(newPassword);
+    await this.usersRepository.save(target);
   }
 }

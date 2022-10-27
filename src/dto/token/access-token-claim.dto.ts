@@ -5,5 +5,6 @@ export class AccessTokenClaim {
   readonly name: string;
   readonly roleName: string;
   readonly exp: number;
-  readonly iss: number;
+  readonly iss: string;
+  readonly iat: number;
 }
