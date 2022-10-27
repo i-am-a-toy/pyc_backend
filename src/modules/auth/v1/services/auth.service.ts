@@ -1,7 +1,7 @@
 import { ForbiddenException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { compareSync } from 'bcrypt';
-import { LoginResponse } from 'src/dto/auth/responses/login.response';
+import { TokenResponse } from 'src/dto/auth/responses/login.response';
 import { User } from 'src/entities/user/user.entity';
 import { ITokenService, TokenServiceKey } from 'src/modules/core/token/interfaces/token-service.interface';
 import { Repository } from 'typeorm';
@@ -15,13 +15,13 @@ export class AuthService implements IAuthService {
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
   ) {}
 
-  async login(name: string, password: string): Promise<LoginResponse> {
+  async login(name: string, password: string): Promise<TokenResponse> {
     const target = await this.usersRepository.findOneByOrFail({ name });
     if (!target.role.isLeader()) throw new ForbiddenException('새신자, 셀원은 로그인을 할 수 없습니다.');
 
     if (compareSync(password, target.password!)) {
       const result = await this.tokenService.createToken(target.churchId, uuid(), target);
-      return new LoginResponse(result.accessToken);
+      return new TokenResponse(result.accessToken);
     }
     throw new UnauthorizedException('비밀번호가 틀립니다.');
   }
@@ -30,9 +30,9 @@ export class AuthService implements IAuthService {
     await this.tokenService.removeToken(accessToken);
   }
 
-  async refresh(accessToken: string): Promise<LoginResponse> {
+  async refresh(accessToken: string): Promise<TokenResponse> {
     const result = await this.tokenService.refresh(accessToken);
-    return new LoginResponse(result.accessToken);
+    return new TokenResponse(result.accessToken);
   }
 
   async chagePassword(id: number, prevPassword: string, newPassword: string): Promise<void> {
