@@ -1,3 +1,4 @@
+import { genSaltSync, hashSync } from 'bcrypt';
 import { UpdateUserRequest } from 'src/dto/user/requests/update-user.request';
 import { GenderTransformer } from 'src/types/gender/gender.transformer';
 import { Gender } from 'src/types/gender/gender.type';
@@ -111,6 +112,11 @@ export class User extends BaseTimeEntity {
 
   changeRole(role: Role): void {
     this.role = role;
+  }
+
+  changePassword(password: string) {
+    const solt = genSaltSync(10);
+    this.password = hashSync(password, solt);
   }
 
   toBeLeader(): void {

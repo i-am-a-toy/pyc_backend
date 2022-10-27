@@ -34,7 +34,14 @@ export const mockCreateUserRequest: CreateUserRequest = plainToInstance(CreateUs
   cellId: 1,
 });
 
-export const getMockUser = (name: string, role: Role, rank: Rank, gender: Gender, cell: Cell | null): User => {
+export const getMockUser = (
+  name: string,
+  role: Role,
+  rank: Rank,
+  gender: Gender,
+  cell: Cell | null,
+  password?: string,
+): User => {
   return plainToInstance(User, {
     name,
     age: 27,
@@ -48,5 +55,6 @@ export const getMockUser = (name: string, role: Role, rank: Rank, gender: Gender
     churchId: 1,
     cell,
     isLongAbsenced: false,
+    password,
   });
 };
