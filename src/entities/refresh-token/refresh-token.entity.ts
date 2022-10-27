@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../user/user.entity';
 
 @Entity({ name: 'refresh_tokens' })
@@ -15,7 +15,7 @@ export class RefreshToken {
   @Column({ type: 'integer', name: 'user_id', nullable: false, comment: 'user의 Id' })
   userId: number;
 
-  @OneToOne(() => User, { cascade: ['remove'] })
+  @ManyToOne(() => User, { cascade: ['remove'] })
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: User;
 
