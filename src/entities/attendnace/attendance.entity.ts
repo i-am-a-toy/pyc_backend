@@ -30,4 +30,22 @@ export class Attendance extends BaseTimeEntity {
 
   @Column({ name: 'attendance_weekly', type: 'timestamptz', nullable: false, comment: '출석체크 weekly' })
   attendanceWeekly: number;
+
+  static of(
+    church: Church,
+    cell: Cell,
+    worshipAttendance: number[],
+    groupAttendance: number[],
+    attendanceDate: Date,
+    attendanceWeekly: number,
+  ): Attendance {
+    const entity = new Attendance();
+    entity.church = church;
+    entity.cell = cell;
+    entity.worthshipAttendance = worshipAttendance.length ? worshipAttendance : null;
+    entity.groupAttendance = groupAttendance.length ? groupAttendance : null;
+    entity.attendanceDate = attendanceDate;
+    entity.attendanceWeekly = attendanceWeekly;
+    return entity;
+  }
 }
