@@ -1,14 +1,19 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { IFactories } from 'src/common/interfaces/factories.interface';
 import { AttendanceRequest } from 'src/dto/attendance/requests/attendance.request';
 import { AttendanceCountResponse } from 'src/dto/attendance/responses/attendance-count.response';
 import { AttendanceResponse } from 'src/dto/attendance/responses/attendance.response';
 import { Attendance } from 'src/entities/attendnace/attendance.entity';
 import { Cell } from 'src/entities/cell/cell.entity';
 import { Church } from 'src/entities/church/church.entity';
-import { AttendanceFilterType } from 'src/enum/attendance-filter-type.enum';
+import { AttendanceFilter } from 'src/enum/attendance-filter-type.enum';
 import { DataSource, Repository } from 'typeorm';
+import { AttendanceCountFactoryKey } from '../factories/attendance-count.factory';
+import { IAttendanceCountService } from '../interfaces/attendance-count.interface';
 import { IAttendanceService } from '../interfaces/attendance-service.interface';
+
+export const AttendanceServiceKey = 'AttendanceService';
 
 @Injectable()
 export class AttendanceService implements IAttendanceService {
@@ -17,6 +22,8 @@ export class AttendanceService implements IAttendanceService {
   constructor(
     private readonly dataSource: DataSource,
     @InjectRepository(Attendance) private readonly repository: Repository<Attendance>,
+    @Inject(AttendanceCountFactoryKey)
+    private readonly factory: IFactories<AttendanceFilter, IAttendanceCountService>,
   ) {}
 
   async attend(req: AttendanceRequest): Promise<void> {
@@ -45,9 +52,22 @@ export class AttendanceService implements IAttendanceService {
     date: Date,
     weekly: number,
   ): Promise<AttendanceResponse> {
-    throw new Error('Method not implemented.');
+    const selected = await this.repository.findOneByOrFail({
+      churchId,
+      cellId,
+      attendanceDate: date,
+      attendanceWeekly: weekly,
+    });
+
+    return new AttendanceResponse(selected);
   }
-  async getWeeklyCount(churchId: number, filter: AttendanceFilterType, date: Date): Promise<AttendanceCountResponse> {
-    throw new Error('Method not implemented.');
+
+  async getCount(
+    churchId: number,
+    filter: AttendanceFilter,
+    date: Date,
+    weekly: number,
+  ): Promise<AttendanceCountResponse> {
+    return await this.factory.getInstance(filter).getAttendance(churchId, date, weekly);
   }
 }

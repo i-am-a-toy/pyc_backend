@@ -28,7 +28,7 @@ export class Attendance extends BaseTimeEntity {
   @Column({ name: 'attendance_date', type: 'timestamptz', nullable: false, comment: '출석체크 weekly의 날짜' })
   attendanceDate: Date;
 
-  @Column({ name: 'attendance_weekly', type: 'timestamptz', nullable: false, comment: '출석체크 weekly' })
+  @Column({ name: 'attendance_weekly', type: 'integer', nullable: false, comment: '출석체크 weekly' })
   attendanceWeekly: number;
 
   static of(
