@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { compareSync, genSaltSync, hashSync } from 'bcrypt';
 import { AccessTokenClaim } from 'src/dto/token/access-token-claim.dto';
+import { TokenClaim } from 'src/dto/token/token-claim.dto';
 import { Cell } from 'src/entities/cell/cell.entity';
 import { Church } from 'src/entities/church/church.entity';
 import { Family } from 'src/entities/family/family.entity';
@@ -332,5 +333,52 @@ describe('AuthService Test', () => {
     //then
     const updatedUser = await dataSource.manager.findOneByOrFail(User, { id: userA.id });
     expect(compareSync(newPassword, updatedUser.password!)).toBe(true);
+  });
+
+  it('isValidated Test - 토큰이 존재하지 않는 경우', () => {
+    //givne
+    const token = '';
+
+    //when
+    const validateResult = service.isValidated(token);
+
+    //the
+    expect(validateResult.result).toBe(false);
+  });
+
+  it('isValidatd Test - 만료된 경우', () => {
+    //given
+    const claim = new TokenClaim('test', 1, 1, 'foobar', 'foobar');
+    const token = jwtService.sign(claim.toPlain(), { expiresIn: '1ms' });
+
+    //when
+    const validateResult = service.isValidated(token);
+
+    //then
+    expect(validateResult.result).toBe(false);
+  });
+
+  it('isValidatd Test - 서명이 다른 경우', () => {
+    //given
+    const claim = new TokenClaim('test', 1, 1, 'foobar', 'foobar');
+    const token = jwtService.sign(claim.toPlain(), { secret: 'foobar' });
+
+    //when
+    const validateResult = service.isValidated(token);
+
+    //then
+    expect(validateResult.result).toBe(false);
+  });
+
+  it('isValidatd Test - 유효한 경우', () => {
+    //given
+    const claim = new TokenClaim('test', 1, 1, 'foobar', 'foobar');
+    const token = jwtService.sign(claim.toPlain());
+
+    //when
+    const validateResult = service.isValidated(token);
+
+    //then
+    expect(validateResult.result).toBe(true);
   });
 });

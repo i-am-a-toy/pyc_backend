@@ -2,6 +2,7 @@ import { ForbiddenException, Inject, Injectable, UnauthorizedException } from '@
 import { InjectRepository } from '@nestjs/typeorm';
 import { compareSync } from 'bcrypt';
 import { TokenResponse } from 'src/dto/auth/responses/login.response';
+import { ValidateResponse } from 'src/dto/common/responses/validate.response';
 import { User } from 'src/entities/user/user.entity';
 import { ITokenService, TokenServiceKey } from 'src/modules/core/token/interfaces/token-service.interface';
 import { Repository } from 'typeorm';
@@ -14,6 +15,15 @@ export class AuthService implements IAuthService {
     @Inject(TokenServiceKey) private readonly tokenService: ITokenService,
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
   ) {}
+
+  isValidated(accessToken: string): ValidateResponse {
+    try {
+      this.tokenService.verifieToken(accessToken);
+      return new ValidateResponse(true);
+    } catch (e) {
+      return new ValidateResponse(false);
+    }
+  }
 
   async login(name: string, password: string): Promise<TokenResponse> {
     const target = await this.usersRepository.findOneByOrFail({ name });

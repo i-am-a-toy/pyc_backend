@@ -9,7 +9,7 @@ export class AuthorizationGuard implements CanActivate {
   constructor(@Inject(TokenServiceKey) private readonly tokenService: ITokenService) {}
 
   //1. write WHITELIST
-  private readonly WHITELIST = ['/api/v1/auth/login', '/api/v1/auth/refresh'];
+  private readonly WHITELIST = ['/api/v1/auth/login', '/api/v1/auth/refresh', '/api/v1/auth/token/validate'];
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<Request>();
