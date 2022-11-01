@@ -2,7 +2,7 @@ import { BadRequestException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
-import { ValidateExistResponse } from 'src/dto/common/responses/validate-exist.response';
+import { ValidateResponse } from 'src/dto/common/responses/validate.response';
 import { CreateFamilyRequest } from 'src/dto/family/requests/create-family.request';
 import { UpdateFamilyRequest } from 'src/dto/family/requests/update-family.request';
 import { FamilyListResponse } from 'src/dto/family/responses/family-list.response';
@@ -354,7 +354,7 @@ describe('Family Service Test', () => {
     const result = await service.isUsedName(churchId, name);
 
     //then
-    expect(result).toStrictEqual(new ValidateExistResponse(false));
+    expect(result).toStrictEqual(new ValidateResponse(false));
   });
 
   it('Is Exsit Name Test - 존재 하는 경우', async () => {
@@ -376,7 +376,7 @@ describe('Family Service Test', () => {
     const result = await service.isUsedName(churchA.id, 'Test Family');
 
     //then
-    expect(result).toStrictEqual(new ValidateExistResponse(true));
+    expect(result).toStrictEqual(new ValidateResponse(true));
   });
 
   it('Update - target이 존재하지 않는 경우', async () => {

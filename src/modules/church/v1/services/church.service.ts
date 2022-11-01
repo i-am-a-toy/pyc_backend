@@ -4,7 +4,7 @@ import { CreateChurchRequest } from 'src/dto/church/requests/create-church.reque
 import { UpdateChurchRequest } from 'src/dto/church/requests/update-church-request';
 import { ChurchListResponse } from 'src/dto/church/responses/church-list.response';
 import { ChurchResponse } from 'src/dto/church/responses/church.response';
-import { ValidateExistResponse } from 'src/dto/common/responses/validate-exist.response';
+import { ValidateResponse } from 'src/dto/common/responses/validate.response';
 import { Church } from 'src/entities/church/church.entity';
 import { Address } from 'src/entities/embedded/address.entity';
 import { Repository } from 'typeorm';
@@ -33,9 +33,9 @@ export class ChurchService implements IChurchService {
     return new ChurchListResponse(rows, count);
   }
 
-  async isExsitName(name: string): Promise<ValidateExistResponse> {
+  async isExsitName(name: string): Promise<ValidateResponse> {
     const selected = await this.repository.findOneBy({ name });
-    return new ValidateExistResponse(selected ? true : false);
+    return new ValidateResponse(selected ? true : false);
   }
 
   async update(id: number, req: UpdateChurchRequest): Promise<void> {

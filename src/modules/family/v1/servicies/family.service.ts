@@ -1,6 +1,6 @@
 import { BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ValidateExistResponse } from 'src/dto/common/responses/validate-exist.response';
+import { ValidateResponse } from 'src/dto/common/responses/validate.response';
 import { CreateFamilyRequest } from 'src/dto/family/requests/create-family.request';
 import { UpdateFamilyRequest } from 'src/dto/family/requests/update-family.request';
 import { DetailFamilyResponse } from 'src/dto/family/responses/detail-family.response';
@@ -65,9 +65,9 @@ export class FamilyService implements IFamilyService {
     return new DetailFamilyResponse(selected);
   }
 
-  async isUsedName(churchId: number, name: string): Promise<ValidateExistResponse> {
+  async isUsedName(churchId: number, name: string): Promise<ValidateResponse> {
     const family = await this.repository.findOneBy({ churchId, name });
-    return new ValidateExistResponse(family ? true : false);
+    return new ValidateResponse(family ? true : false);
   }
 
   async update(churchId: number, id: number, req: UpdateFamilyRequest): Promise<DetailFamilyResponse> {
@@ -132,7 +132,7 @@ export class FamilyService implements IFamilyService {
         this.updatePrevFamilyLeader(qr, target.subLeader, true),
       ]);
 
-      if (this.isExistCell(target.cells, target.leaderId, target.subLeaderId)) {
+      if (this.resultCell(target.cells, target.leaderId, target.subLeaderId)) {
         throw new BadRequestException('해당 팸에 소속된 셀이 존재합니다.');
       }
 
@@ -206,7 +206,7 @@ export class FamilyService implements IFamilyService {
     await qr.manager.save(leader);
   }
 
-  private isExistCell(cells: Cell[], leaderId: number, subLeaderId: number | null): boolean {
+  private resultCell(cells: Cell[], leaderId: number, subLeaderId: number | null): boolean {
     if (!cells.length) return false;
 
     const excludeCellList = cells.filter((c) => c.leaderId !== leaderId && c.leaderId !== subLeaderId);

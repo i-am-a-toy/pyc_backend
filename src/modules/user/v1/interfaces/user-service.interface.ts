@@ -1,4 +1,4 @@
-import { ValidateExistResponse } from 'src/dto/common/responses/validate-exist.response';
+import { ValidateResponse } from 'src/dto/common/responses/validate.response';
 import { CreateUserRequest } from 'src/dto/user/requests/create-user.request';
 import { UpdateUserRequest } from 'src/dto/user/requests/update-user.request';
 import { UserListResponse } from 'src/dto/user/responses/user-list.response';
@@ -16,7 +16,7 @@ export interface IUserService {
   findUsersByRole(churchId: number, role: Role, offset: number, limit: number): Promise<UserListResponse>;
   findUsersByRank(churchId: number, rank: Rank, offset: number, limit: number): Promise<UserListResponse>;
   findUsersWithoutCell(churchId: number, offset: number, limit: number): Promise<UserListResponse>;
-  isExistByName(churchId: number, name: string): Promise<ValidateExistResponse>;
+  resultByName(churchId: number, name: string): Promise<ValidateResponse>;
   findUserTobeLeader(churchId: number, type: LEADER_TYPE, familyId: number | null): Promise<UserListResponse>;
 
   //U

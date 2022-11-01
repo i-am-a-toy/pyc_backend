@@ -1,4 +1,4 @@
-import { ValidateExistResponse } from 'src/dto/common/responses/validate-exist.response';
+import { ValidateResponse } from 'src/dto/common/responses/validate.response';
 import { CreateFamilyRequest } from 'src/dto/family/requests/create-family.request';
 import { UpdateFamilyRequest } from 'src/dto/family/requests/update-family.request';
 import { DetailFamilyResponse } from 'src/dto/family/responses/detail-family.response';
@@ -11,7 +11,7 @@ export interface IFamilyService {
   //R
   findAll(churchId: number, offset: number, limit: number): Promise<FamilyListResponse>;
   findById(churchId: number, id: number): Promise<DetailFamilyResponse>;
-  isUsedName(churchId: number, name: string): Promise<ValidateExistResponse>;
+  isUsedName(churchId: number, name: string): Promise<ValidateResponse>;
 
   // U
   update(churchId: number, id: number, req: UpdateFamilyRequest): Promise<DetailFamilyResponse>;

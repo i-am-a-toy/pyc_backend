@@ -2,7 +2,7 @@ import { CreateChurchRequest } from 'src/dto/church/requests/create-church.reque
 import { UpdateChurchRequest } from 'src/dto/church/requests/update-church-request';
 import { ChurchListResponse } from 'src/dto/church/responses/church-list.response';
 import { ChurchResponse } from 'src/dto/church/responses/church.response';
-import { ValidateExistResponse } from 'src/dto/common/responses/validate-exist.response';
+import { ValidateResponse } from 'src/dto/common/responses/validate.response';
 
 export interface IChurchService {
   // C
@@ -10,7 +10,7 @@ export interface IChurchService {
   // R
   findOneById(id: number): Promise<ChurchResponse>;
   findAll(limit: number, offset: number): Promise<ChurchListResponse>;
-  isExsitName(name: string): Promise<ValidateExistResponse>;
+  isExsitName(name: string): Promise<ValidateResponse>;
   // U
   update(id: number, req: UpdateChurchRequest): Promise<void>;
   // D

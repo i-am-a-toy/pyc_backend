@@ -99,7 +99,7 @@ export class CellService implements ICellService {
         where: { churchId, id },
         relations: ['leader', 'members'],
       });
-      if (this.isExistMember(target.members, target.leaderId)) throw new Error('셀원이 있는 셀은 삭제할 수 없습니다.');
+      if (this.resultMember(target.members, target.leaderId)) throw new Error('셀원이 있는 셀은 삭제할 수 없습니다.');
 
       const targetLeader = await qr.manager.findOneByOrFail(User, { churchId, id: target.leaderId });
       targetLeader.putDownLeader();
@@ -134,7 +134,7 @@ export class CellService implements ICellService {
     cell.changeLeader(leader);
   }
 
-  private isExistMember(members: User[], leaderId: number): boolean {
+  private resultMember(members: User[], leaderId: number): boolean {
     if (!members.length) return false;
 
     return members.some((m) => m.id !== leaderId);

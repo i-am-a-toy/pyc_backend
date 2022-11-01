@@ -1,12 +1,19 @@
-import { Body, Controller, Headers, Inject, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Inject, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
 import { ChangePasswordRequest } from 'src/dto/auth/requests/change-password.request';
 import { LoginRequest } from 'src/dto/auth/requests/login.request';
 import { TokenResponse } from 'src/dto/auth/responses/login.response';
+import { ValidateResponse } from 'src/dto/common/responses/validate.response';
 import { AuthServiceKey, IAuthService } from '../interfaces/auth-service.interface';
 
 @Controller('auth')
 export class AuthController {
   constructor(@Inject(AuthServiceKey) private readonly authService: IAuthService) {}
+
+  @Get('token/validate')
+  validateToken(@Headers('Authorization') auth: string): ValidateResponse {
+    const [_, token] = auth.split(' ')[1];
+    return this.authService.isValidated(token);
+  }
 
   @Post('/login')
   async login(@Body() req: LoginRequest): Promise<TokenResponse> {

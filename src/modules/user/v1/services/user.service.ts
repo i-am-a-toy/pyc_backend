@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ValidateExistResponse } from 'src/dto/common/responses/validate-exist.response';
+import { ValidateResponse } from 'src/dto/common/responses/validate.response';
 import { CreateUserRequest } from 'src/dto/user/requests/create-user.request';
 import { UpdateUserRequest } from 'src/dto/user/requests/update-user.request';
 import { UserListResponse } from 'src/dto/user/responses/user-list.response';
@@ -88,9 +88,9 @@ export class UserService implements IUserService {
     return new UserListResponse(rows, count);
   }
 
-  async isExistByName(churchId: number, name: string): Promise<ValidateExistResponse> {
+  async resultByName(churchId: number, name: string): Promise<ValidateResponse> {
     const result = await this.repository.findOneBy({ churchId, name });
-    return new ValidateExistResponse(result ? true : false);
+    return new ValidateResponse(result ? true : false);
   }
 
   async findUserTobeLeader(churchId: number, type: LEADER_TYPE, familyId: number | null): Promise<UserListResponse> {

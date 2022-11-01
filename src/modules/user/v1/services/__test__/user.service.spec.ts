@@ -2,7 +2,7 @@ import { BadRequestException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
-import { ValidateExistResponse } from 'src/dto/common/responses/validate-exist.response';
+import { ValidateResponse } from 'src/dto/common/responses/validate.response';
 import { CreateUserRequest } from 'src/dto/user/requests/create-user.request';
 import { UpdateUserRequest } from 'src/dto/user/requests/update-user.request';
 import { UserListResponse } from 'src/dto/user/responses/user-list.response';
@@ -416,10 +416,10 @@ describe('User Servic Test', () => {
     const name = 'userA';
 
     //when
-    const result = await service.isExistByName(churchA.id, name);
+    const result = await service.resultByName(churchA.id, name);
 
     //then
-    expect(result).toStrictEqual(new ValidateExistResponse(false));
+    expect(result).toStrictEqual(new ValidateResponse(false));
   });
 
   it('IsExistByName Test - 존재하지 않는 경우', async () => {
@@ -430,10 +430,10 @@ describe('User Servic Test', () => {
     ]);
 
     //when
-    const result = await service.isExistByName(churchA.id, leaderA.name);
+    const result = await service.resultByName(churchA.id, leaderA.name);
 
     //then
-    expect(result).toStrictEqual(new ValidateExistResponse(true));
+    expect(result).toStrictEqual(new ValidateResponse(true));
   });
 
   it('FindTobeLeader Test - 셀리더를 찾을 때 familyId가 없는 경우', () => {

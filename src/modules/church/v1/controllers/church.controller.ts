@@ -17,7 +17,7 @@ import { UpdateChurchRequest } from 'src/dto/church/requests/update-church-reque
 import { ChurchListResponse } from 'src/dto/church/responses/church-list.response';
 import { ChurchResponse } from 'src/dto/church/responses/church.response';
 import { PaginationQuery } from 'src/dto/common/requests/pagination.query';
-import { ValidateExistResponse } from 'src/dto/common/responses/validate-exist.response';
+import { ValidateResponse } from 'src/dto/common/responses/validate.response';
 import { IChurchService } from '../interfaces/church-service.interface';
 
 @Controller('church')
@@ -40,7 +40,7 @@ export class ChurchController {
   }
 
   @Get('/validate/name/:name')
-  async validateExistName(@Param('name') name: string): Promise<ValidateExistResponse> {
+  async validateExistName(@Param('name') name: string): Promise<ValidateResponse> {
     return this.churchService.isExsitName(name);
   }
 
