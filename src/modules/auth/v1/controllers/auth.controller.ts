@@ -11,7 +11,7 @@ export class AuthController {
 
   @Get('token/validate')
   validateToken(@Headers('Authorization') auth: string): ValidateResponse {
-    const [_, token] = auth.split(' ')[1];
+    const [_, token] = auth.split(' ');
     return this.authService.isValidated(token);
   }
 
@@ -22,13 +22,13 @@ export class AuthController {
 
   @Post('/logout')
   async logout(@Headers('Authorization') auth: string) {
-    const [_, token] = auth.split(' ')[1];
+    const [_, token] = auth.split(' ');
     return this.authService.refresh(token);
   }
 
   @Put('/refresh')
   async refresh(@Headers('Authorization') auth: string): Promise<TokenResponse> {
-    const [_, token] = auth.split(' ')[1];
+    const [_, token] = auth.split(' ');
     return this.authService.refresh(token);
   }
 
