@@ -13,7 +13,7 @@ import { AttendanceCountFactoryKey } from '../factories/attendance-count.factory
 import { IAttendanceCountService } from '../interfaces/attendance-count.interface';
 import { IAttendanceService } from '../interfaces/attendance-service.interface';
 
-export const AttendanceServiceKey = 'AttendanceService';
+export const AttendanceServiceKey = 'AttendanceServiceKey';
 
 @Injectable()
 export class AttendanceService implements IAttendanceService {
@@ -66,7 +66,7 @@ export class AttendanceService implements IAttendanceService {
     churchId: number,
     filter: AttendanceFilter,
     date: Date,
-    weekly: number,
+    weekly?: number,
   ): Promise<AttendanceCountResponse> {
     return await this.factory.getInstance(filter).getAttendance(churchId, date, weekly);
   }

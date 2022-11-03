@@ -324,4 +324,216 @@ describe('Attendance Service Test', () => {
     //then
     expect(result).toStrictEqual(new AttendanceCountResponse(0, 0));
   });
+
+  it('Get Count Test - Month (출석 현황이 있는 경우)', async () => {
+    //given
+    const [churchA] = await dataSource.manager.save(Church, mockChurchs);
+    const [leaderA, leaderB, leaderC] = await dataSource.manager.save(User, [
+      getMockUser('userA', Role.FAMILY_LEADER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+      getMockUser('userB', Role.SUB_FAMILY_LEADER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+      getMockUser('userC', Role.MEMBER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+    ]);
+    const familyA = await dataSource.manager.save(Family, getMockFamily(churchA, leaderA, leaderB, 'familyA'));
+    const [cellA] = await dataSource.manager.save(Cell, [getMockCell('cellA', leaderC, familyA)]);
+
+    const req = plainToInstance(AttendanceRequest, {
+      churchId: churchA.id,
+      cellId: cellA.id,
+      worthshipAttendance: [1, 2, 3],
+      groupAttendance: [4, 5],
+      attendanceDate: '2022-11-03',
+      attendanceWeekly: 44,
+    });
+    await expect(service.attend(req)).resolves.not.toThrowError();
+
+    //when
+    const result = await service.getCount(
+      churchA.id,
+      AttendanceFilter.MONTH,
+      new Date(req.attendanceDate),
+      req.attendanceWeekly,
+    );
+
+    //then
+    expect(result).toStrictEqual(new AttendanceCountResponse(3, 2));
+  });
+
+  it('Get Count Test - Month (출석 현황이 있는 경우 - 다른 주)', async () => {
+    //given
+    const [churchA] = await dataSource.manager.save(Church, mockChurchs);
+    const [leaderA, leaderB, leaderC, leaderD] = await dataSource.manager.save(User, [
+      getMockUser('userA', Role.FAMILY_LEADER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+      getMockUser('userB', Role.SUB_FAMILY_LEADER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+      getMockUser('userC', Role.MEMBER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+      getMockUser('userD', Role.MEMBER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+    ]);
+    const familyA = await dataSource.manager.save(Family, getMockFamily(churchA, leaderA, leaderB, 'familyA'));
+    const [cellA, cellB] = await dataSource.manager.save(Cell, [
+      getMockCell('cellA', leaderC, familyA),
+      getMockCell('cellB', leaderD, familyA),
+    ]);
+
+    const req = plainToInstance(AttendanceRequest, {
+      churchId: churchA.id,
+      cellId: cellA.id,
+      worthshipAttendance: [1, 2, 3],
+      groupAttendance: [4, 5],
+      attendanceDate: '2022-11-03',
+      attendanceWeekly: 44,
+    });
+    await expect(service.attend(req)).resolves.not.toThrowError();
+
+    const req2 = plainToInstance(AttendanceRequest, {
+      churchId: churchA.id,
+      cellId: cellB.id,
+      worthshipAttendance: [1, 2],
+      groupAttendance: [4, 5, 6],
+      attendanceDate: '2022-11-10',
+      attendanceWeekly: 45,
+    });
+    await expect(service.attend(req2)).resolves.not.toThrowError();
+
+    const req3 = plainToInstance(AttendanceRequest, {
+      churchId: churchA.id,
+      cellId: cellB.id,
+      worthshipAttendance: [1, 2],
+      groupAttendance: [4, 5, 6],
+      attendanceDate: '2022-12-01',
+      attendanceWeekly: 48,
+    });
+    await expect(service.attend(req3)).resolves.not.toThrowError();
+
+    //when
+    const result = await service.getCount(
+      churchA.id,
+      AttendanceFilter.MONTH,
+      new Date(req.attendanceDate),
+      req.attendanceWeekly,
+    );
+
+    //then
+    expect(result).toStrictEqual(new AttendanceCountResponse(5, 5));
+  });
+
+  it('Get Count Test - Month (출석 현황이 없는 경우)', async () => {
+    //given
+    const churchId = 1;
+    const filter = AttendanceFilter.MONTH;
+    const date = new Date('2022-11-03');
+    const weekly = 44;
+
+    //when
+    const result = await service.getCount(churchId, filter, date, weekly);
+
+    //then
+    expect(result).toStrictEqual(new AttendanceCountResponse(0, 0));
+  });
+
+  it('Get Count Test - YEAR (출석 현황이 있는 경우)', async () => {
+    //given
+    const [churchA] = await dataSource.manager.save(Church, mockChurchs);
+    const [leaderA, leaderB, leaderC] = await dataSource.manager.save(User, [
+      getMockUser('userA', Role.FAMILY_LEADER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+      getMockUser('userB', Role.SUB_FAMILY_LEADER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+      getMockUser('userC', Role.MEMBER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+    ]);
+    const familyA = await dataSource.manager.save(Family, getMockFamily(churchA, leaderA, leaderB, 'familyA'));
+    const [cellA] = await dataSource.manager.save(Cell, [getMockCell('cellA', leaderC, familyA)]);
+
+    const req = plainToInstance(AttendanceRequest, {
+      churchId: churchA.id,
+      cellId: cellA.id,
+      worthshipAttendance: [1, 2, 3],
+      groupAttendance: [4, 5],
+      attendanceDate: '2022-11-03',
+      attendanceWeekly: 44,
+    });
+    await expect(service.attend(req)).resolves.not.toThrowError();
+
+    //when
+    const result = await service.getCount(
+      churchA.id,
+      AttendanceFilter.YEAR,
+      new Date(req.attendanceDate),
+      req.attendanceWeekly,
+    );
+
+    //then
+    expect(result).toStrictEqual(new AttendanceCountResponse(3, 2));
+  });
+
+  it('Get Count Test - YEAR (출석 현황이 있는 경우 - 다른 달)', async () => {
+    //given
+    const [churchA] = await dataSource.manager.save(Church, mockChurchs);
+    const [leaderA, leaderB, leaderC, leaderD] = await dataSource.manager.save(User, [
+      getMockUser('userA', Role.FAMILY_LEADER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+      getMockUser('userB', Role.SUB_FAMILY_LEADER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+      getMockUser('userC', Role.MEMBER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+      getMockUser('userD', Role.MEMBER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+    ]);
+    const familyA = await dataSource.manager.save(Family, getMockFamily(churchA, leaderA, leaderB, 'familyA'));
+    const [cellA, cellB] = await dataSource.manager.save(Cell, [
+      getMockCell('cellA', leaderC, familyA),
+      getMockCell('cellB', leaderD, familyA),
+    ]);
+
+    const req = plainToInstance(AttendanceRequest, {
+      churchId: churchA.id,
+      cellId: cellA.id,
+      worthshipAttendance: [1, 2, 3],
+      groupAttendance: [4, 5],
+      attendanceDate: '2022-10-26',
+      attendanceWeekly: 43,
+    });
+    await expect(service.attend(req)).resolves.not.toThrowError();
+
+    const req2 = plainToInstance(AttendanceRequest, {
+      churchId: churchA.id,
+      cellId: cellB.id,
+      worthshipAttendance: [1, 2],
+      groupAttendance: [4, 5, 6],
+      attendanceDate: '2022-11-10',
+      attendanceWeekly: 45,
+    });
+    await expect(service.attend(req2)).resolves.not.toThrowError();
+
+    //when
+    const result = await service.getCount(
+      churchA.id,
+      AttendanceFilter.YEAR,
+      new Date(req.attendanceDate),
+      req.attendanceWeekly,
+    );
+
+    //then
+    expect(result).toStrictEqual(new AttendanceCountResponse(5, 5));
+  });
+
+  it('Get Count Test - Month (출석 현황이 없는 경우)', async () => {
+    //given
+    const churchId = 1;
+    const filter = AttendanceFilter.MONTH;
+    const date = new Date('2022-11-03');
+    const weekly = 44;
+
+    //when
+    const result = await service.getCount(churchId, filter, date, weekly);
+
+    //then
+    expect(result).toStrictEqual(new AttendanceCountResponse(0, 0));
+  });
+
+  it('Get Count Test - YEAR (출석 현황이 없는 경우)', async () => {
+    //given
+    const churchId = 1;
+    const filter = AttendanceFilter.YEAR;
+    const date = new Date('2022-11-03');
+    const weekly = 44;
+
+    //when
+    const result = await service.getCount(churchId, filter, date, weekly);
+
+    //then
+    expect(result).toStrictEqual(new AttendanceCountResponse(0, 0));
+  });
 });

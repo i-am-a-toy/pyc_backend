@@ -6,5 +6,5 @@ import { AttendanceFilter } from 'src/enum/attendance-filter-type.enum';
 export interface IAttendanceService {
   attend(req: AttendanceRequest): Promise<void>;
   findOneByCellAndDate(churchId: number, cellId: number, date: Date, weekly: number): Promise<AttendanceResponse>;
-  getCount(churchId: number, filter: AttendanceFilter, date: Date, weekly: number): Promise<AttendanceCountResponse>;
+  getCount(churchId: number, filter: AttendanceFilter, date: Date, weekly?: number): Promise<AttendanceCountResponse>;
 }
