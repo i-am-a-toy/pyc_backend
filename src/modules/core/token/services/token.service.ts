@@ -21,7 +21,7 @@ export class TokenService implements ITokenService {
     const accessToken = this.jwtService.sign(
       new TokenClaim(id, churchId, user.id, user.name, user.role.enumName).toPlain(),
     );
-    const refreshToken = this.jwtService.sign({ id, churchId, userId: user.id }, { expiresIn: '30 days' });
+    const refreshToken = this.jwtService.sign({ id, churchId, userId: user.id }, { expiresIn: '30d' });
     await this.refreshTokenRepository.save(RefreshToken.of(churchId, user, id, refreshToken));
 
     return { accessToken };
