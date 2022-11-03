@@ -2,11 +2,13 @@ import { Test } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import { AttendanceRequest } from 'src/dto/attendance/requests/attendance.request';
+import { AttendanceCountResponse } from 'src/dto/attendance/responses/attendance-count.response';
 import { Attendance } from 'src/entities/attendnace/attendance.entity';
 import { Cell } from 'src/entities/cell/cell.entity';
 import { Church } from 'src/entities/church/church.entity';
 import { Family } from 'src/entities/family/family.entity';
 import { User } from 'src/entities/user/user.entity';
+import { AttendanceFilter } from 'src/enum/attendance-filter-type.enum';
 import { Gender } from 'src/types/gender/gender.type';
 import { Rank } from 'src/types/rank/rank.type';
 import { Role } from 'src/types/role/role.type';
@@ -227,5 +229,99 @@ describe('Attendance Service Test', () => {
     expect(attendance.groupAttendance).toStrictEqual([]);
     expect(attendance.attendanceDate).toStrictEqual(new Date('2022-10-31'));
     expect(attendance.attendanceWeekly).toBe(44);
+  });
+
+  it('Get Count Test - Weekly (출석 현황이 있는 경우)', async () => {
+    //given
+    const [churchA] = await dataSource.manager.save(Church, mockChurchs);
+    const [leaderA, leaderB, leaderC] = await dataSource.manager.save(User, [
+      getMockUser('userA', Role.FAMILY_LEADER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+      getMockUser('userB', Role.SUB_FAMILY_LEADER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+      getMockUser('userC', Role.MEMBER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+    ]);
+    const familyA = await dataSource.manager.save(Family, getMockFamily(churchA, leaderA, leaderB, 'familyA'));
+    const [cellA] = await dataSource.manager.save(Cell, [getMockCell('cellA', leaderC, familyA)]);
+
+    const req = plainToInstance(AttendanceRequest, {
+      churchId: churchA.id,
+      cellId: cellA.id,
+      worthshipAttendance: [1, 2, 3],
+      groupAttendance: [4, 5],
+      attendanceDate: '2022-11-03',
+      attendanceWeekly: 44,
+    });
+    await expect(service.attend(req)).resolves.not.toThrowError();
+
+    //when
+    const result = await service.getCount(
+      churchA.id,
+      AttendanceFilter.WEEK,
+      new Date(req.attendanceDate),
+      req.attendanceWeekly,
+    );
+
+    //then
+    expect(result).toStrictEqual(new AttendanceCountResponse(3, 2));
+  });
+
+  it('Get Count Test - Weekly (출석 현황이 있는 경우 cell이 여러개)', async () => {
+    //given
+    const [churchA] = await dataSource.manager.save(Church, mockChurchs);
+    const [leaderA, leaderB, leaderC, leaderD] = await dataSource.manager.save(User, [
+      getMockUser('userA', Role.FAMILY_LEADER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+      getMockUser('userB', Role.SUB_FAMILY_LEADER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+      getMockUser('userC', Role.MEMBER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+      getMockUser('userD', Role.MEMBER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+    ]);
+    const familyA = await dataSource.manager.save(Family, getMockFamily(churchA, leaderA, leaderB, 'familyA'));
+    const [cellA, cellB] = await dataSource.manager.save(Cell, [
+      getMockCell('cellA', leaderC, familyA),
+      getMockCell('cellB', leaderD, familyA),
+    ]);
+
+    const req = plainToInstance(AttendanceRequest, {
+      churchId: churchA.id,
+      cellId: cellA.id,
+      worthshipAttendance: [1, 2, 3],
+      groupAttendance: [4, 5],
+      attendanceDate: '2022-11-03',
+      attendanceWeekly: 44,
+    });
+    await expect(service.attend(req)).resolves.not.toThrowError();
+
+    const req2 = plainToInstance(AttendanceRequest, {
+      churchId: churchA.id,
+      cellId: cellB.id,
+      worthshipAttendance: [1, 2],
+      groupAttendance: [4, 5, 6],
+      attendanceDate: '2022-11-03',
+      attendanceWeekly: 44,
+    });
+    await expect(service.attend(req2)).resolves.not.toThrowError();
+
+    //when
+    const result = await service.getCount(
+      churchA.id,
+      AttendanceFilter.WEEK,
+      new Date(req.attendanceDate),
+      req.attendanceWeekly,
+    );
+
+    //then
+    expect(result).toStrictEqual(new AttendanceCountResponse(5, 5));
+  });
+
+  it('Get Count Test - Weekly (출석 현황이 없는 경우)', async () => {
+    //given
+    const churchId = 1;
+    const filter = AttendanceFilter.WEEK;
+    const date = new Date('2022-11-03');
+    const weekly = 44;
+
+    //when
+    const result = await service.getCount(churchId, filter, date, weekly);
+
+    //then
+    expect(result).toStrictEqual(new AttendanceCountResponse(0, 0));
   });
 });

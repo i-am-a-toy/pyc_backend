@@ -19,7 +19,7 @@ export class Attendance extends BaseTimeEntity {
   @JoinColumn({ name: 'cell_id', referencedColumnName: 'id' })
   cell: Cell;
 
-  @Column({ name: 'worship_attendance', type: 'int', array: true, nullable: true, comment: '예배 참석 인원' })
+  @Column({ name: 'worthship_attendance', type: 'int', array: true, nullable: true, comment: '예배 참석 인원' })
   worthshipAttendance: number[] | null;
 
   @Column({ name: 'group_attendance', type: 'int', array: true, nullable: true, comment: '모임 참석 인원' })
