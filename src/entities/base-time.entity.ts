@@ -8,5 +8,5 @@ export abstract class BaseTimeEntity {
   createdAt: Date;
 
   @UpdateDateColumn({ nullable: false, type: 'timestamptz', comment: '데이터 업데이트 일자' })
-  updatedAt: Date;
+  lastModifiedAt: Date;
 }
