@@ -13,7 +13,7 @@ export function getJwtModuel(): DynamicModule {
        */
       signOptions: {
         issuer: 'pyc',
-        expiresIn: `${configService.get('JWT_EXPIRES_IN')}`,
+        expiresIn: '7d',
       },
     }),
   });

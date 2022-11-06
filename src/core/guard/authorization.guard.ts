@@ -19,12 +19,14 @@ export class AuthorizationGuard implements CanActivate {
     if (result) return true;
 
     // check token
-    const token = req.headers.authorization;
-    if (!token || token === '') throw new UnauthorizedException('인증정보가 없습니다.');
+    const authorizationHeader = req.headers.authorization;
+    if (!authorizationHeader || authorizationHeader === '') throw new UnauthorizedException('인증정보가 없습니다.');
+    const [_, token] = authorizationHeader.split(' ');
 
     try {
       const accessClaim = this.tokenService.verifieToken(token);
-      const role = Role.findByName(accessClaim.roleName);
+
+      const role = Role.find(accessClaim.roleName);
       if (!role) throw Error('유효하지 않은 Role입니다.');
 
       const pycUser = new PycUser(accessClaim.id, accessClaim.churchId, accessClaim.userId, accessClaim.name, role!);
