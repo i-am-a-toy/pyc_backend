@@ -7,12 +7,14 @@ import { LEADER_TYPE } from 'src/enum/leader-type.enum';
 import { Rank } from 'src/types/rank/rank.type';
 import { Role } from 'src/types/role/role.type';
 
+export const UserServicekey = 'UserServiceKey';
+
 export interface IUserService {
   //C
   save(churchId: number, req: CreateUserRequest): Promise<UserResponse>;
 
   //R
-  findUserById(id: number, churchId: number): Promise<UserResponse>;
+  findUserById(churchId: number, id: number): Promise<UserResponse>;
   findUsersByRole(churchId: number, role: Role, offset: number, limit: number): Promise<UserListResponse>;
   findUsersByRank(churchId: number, rank: Rank, offset: number, limit: number): Promise<UserListResponse>;
   findUsersWithoutCell(churchId: number, offset: number, limit: number): Promise<UserListResponse>;
