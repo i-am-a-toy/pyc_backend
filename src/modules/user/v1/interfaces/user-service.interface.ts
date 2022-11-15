@@ -15,6 +15,7 @@ export interface IUserService {
 
   //R
   findUserById(churchId: number, id: number): Promise<UserResponse>;
+  findUsersByName(churchId: number, name: string, offset: number, limit: number): Promise<UserListResponse>;
   findUsersByRole(churchId: number, role: Role, offset: number, limit: number): Promise<UserListResponse>;
   findUsersByRank(churchId: number, rank: Rank, offset: number, limit: number): Promise<UserListResponse>;
   findUsersWithoutCell(churchId: number, offset: number, limit: number): Promise<UserListResponse>;

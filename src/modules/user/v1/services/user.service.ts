@@ -52,6 +52,18 @@ export class UserService implements IUserService {
     return new UserResponse(result);
   }
 
+  async findUsersByName(churchId: number, name: string, offset: number, limit: number): Promise<UserListResponse> {
+    const [rows, count] = await this.repository
+      .createQueryBuilder('users')
+      .where('church_id = :churchId', { churchId })
+      .andWhere('name ~ :name', { name })
+      .skip(offset)
+      .limit(limit)
+      .getManyAndCount();
+
+    return new UserListResponse(rows, count);
+  }
+
   async findUsersByRole(churchId: number, role: Role, offset: number, limit: number): Promise<UserListResponse> {
     const [rows, count] = await this.repository
       .createQueryBuilder('users')
