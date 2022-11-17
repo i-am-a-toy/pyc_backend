@@ -6,6 +6,7 @@ import { UpdateNoticeRequest } from 'src/dto/notice/requests/update-notice.reque
 import { NoticeListResponse } from 'src/dto/notice/responses/notice-list.response';
 import { NoticeResponse } from 'src/dto/notice/responses/notice.response';
 import { Church } from 'src/entities/church/church.entity';
+import { NoticeComment } from 'src/entities/notice-comment/notice-comment.entity';
 import { Notice } from 'src/entities/notice/notice.entity';
 import { User } from 'src/entities/user/user.entity';
 import { DataSource, EntityNotFoundError, Repository, SelectQueryBuilder } from 'typeorm';
@@ -40,7 +41,8 @@ export class NoticeService implements INoticeService {
   }
 
   async findAll(churchId: number, offset: number, limit: number): Promise<NoticeListResponse> {
-    const [entities, count] = await this.getDefaultFindQueryBuild(churchId)
+    const [entities, count] = await this.getDefaultFindQueryBuild()
+      .where('notice.church_id = :churchId', { churchId })
       .offset(offset)
       .limit(limit)
       .orderBy('notice.created_at', 'DESC')
@@ -50,7 +52,7 @@ export class NoticeService implements INoticeService {
   }
 
   async findOneById(churchId: number, id: number): Promise<NoticeResponse> {
-    const selected = await this.getDefaultFindQueryBuild(churchId).andWhere('notice.id = :id', { id }).getOne();
+    const selected = await this.getNoticeWithComment(churchId).andWhere('notice.id = :id', { id }).getOne();
     if (!selected) throw new EntityNotFoundError(Notice, { churchId, id });
 
     return new NoticeResponse(selected);
@@ -80,11 +82,20 @@ export class NoticeService implements INoticeService {
     await this.repository.delete({ churchId, id });
   }
 
-  private getDefaultFindQueryBuild(churchId: number): SelectQueryBuilder<Notice> {
+  private getDefaultFindQueryBuild(): SelectQueryBuilder<Notice> {
     return this.repository
       .createQueryBuilder('notice')
-      .leftJoinAndMapOne('createdUser', User, 'c_user', 'notice.created_by = c_user.id')
-      .leftJoinAndMapOne('lastModifiedUser', User, 'm_user', 'notice.last_modified_by = m_user.id')
-      .where('notice.church_id = :churchId', { churchId });
+      .innerJoinAndMapOne('notice.createdUser', User, 'c_user', 'notice.created_by = c_user.id')
+      .innerJoinAndMapOne('notice.lastModifiedUser', User, 'm_user', 'notice.last_modified_by = m_user.id');
+  }
+
+  private getNoticeWithComment(churchId: number): SelectQueryBuilder<Notice> {
+    return this.getDefaultFindQueryBuild()
+      .innerJoinAndMapMany('notice.noticeComments', NoticeComment, 'comments', 'notice.id = comments.notice_id')
+      .innerJoinAndMapOne('comments.createdUser', User, 'co_user', 'notice.created_by = co_user.id')
+      .innerJoinAndMapOne('comments.lastModifiedUser', User, 'mo_user', 'notice.last_modified_by = mo_user.id')
+      .where('notice.church_id = :churchId', { churchId })
+      .orderBy('comments.created_at', 'ASC')
+      .addOrderBy('comments.group_sort_number', 'ASC', 'NULLS FIRST');
   }
 }

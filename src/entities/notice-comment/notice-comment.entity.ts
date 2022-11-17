@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { BaseTimeEntity } from '../base-time.entity';
 import { Church } from '../church/church.entity';
 import { Notice } from '../notice/notice.entity';
+import { User } from '../user/user.entity';
 
 @Entity({ name: 'notice_comments' })
 export class NoticeComment extends BaseTimeEntity {
@@ -34,6 +35,9 @@ export class NoticeComment extends BaseTimeEntity {
 
   @Column({ type: 'integer', nullable: true, comment: '그룹 안에서의 댓글 순서' })
   groupSortNumber: number | null;
+
+  createdUser: User;
+  lastModifiedUser: User;
 
   static of(
     church: Church,

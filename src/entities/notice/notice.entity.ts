@@ -3,6 +3,7 @@ import { BaseTimeEntity } from '../base-time.entity';
 import { Church } from '../church/church.entity';
 import { Created } from '../embedded/created.entity';
 import { LastModified } from '../embedded/last-modified.entity';
+import { NoticeComment } from '../notice-comment/notice-comment.entity';
 import { User } from '../user/user.entity';
 
 @Entity({ name: 'notices' })
@@ -26,8 +27,9 @@ export class Notice extends BaseTimeEntity {
   @Column(() => LastModified, { prefix: false })
   lastModified: LastModified;
 
-  createdUser!: User;
-  lastModifiedUser!: User;
+  createdUser: User;
+  lastModifiedUser: User;
+  noticeComments: NoticeComment[];
 
   updateNotice(title: string, content: string, user: User) {
     this.title = title;
