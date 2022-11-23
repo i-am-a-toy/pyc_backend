@@ -9,7 +9,7 @@ export class Created {
   @Column({ type: 'varchar', name: 'created_name', nullable: false, comment: '작성자의 작성 시점의 이름' })
   name!: string;
 
-  @Column({ nullable: false, type: 'varchar', comment: '작성자 프로필 이미지' })
+  @Column({ type: 'varchar', name: 'created_image', nullable: false, comment: '작성자 프로필 이미지' })
   image!: string;
 
   @Column({

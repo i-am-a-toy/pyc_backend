@@ -9,7 +9,7 @@ export class LastModified {
   @Column({ type: 'varchar', name: 'last_modified_name', nullable: false, comment: '수정자' })
   name!: string;
 
-  @Column({ nullable: false, type: 'varchar', comment: '수정자 프로필 이미지' })
+  @Column({ type: 'varchar', name: 'last_modified_image', nullable: false, comment: '수정자 프로필 이미지' })
   image!: string;
 
   @Column({
