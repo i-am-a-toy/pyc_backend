@@ -111,8 +111,8 @@ describe('Notice Service Test', () => {
     expect(result.churchId).toBe(1);
     expect(result.title).toBe('title');
     expect(result.content).toBe('content');
-    expect(result.created).toStrictEqual(new Created(1, 'userA', Role.LEADER));
-    expect(result.lastModified).toStrictEqual(new LastModified(1, 'userA', Role.LEADER));
+    expect(result.created).toStrictEqual(new Created(1, 'userA', 'image', Role.LEADER));
+    expect(result.lastModified).toStrictEqual(new LastModified(1, 'userA', 'image', Role.LEADER));
   });
 
   it('FindOneById Test - 존재하지 않는 경우', async () => {
@@ -307,7 +307,7 @@ describe('Notice Service Test', () => {
     expect(updated.id).toBe(1);
     expect(updated.title).toBe('change');
     expect(updated.content).toBe('change');
-    expect(updated.lastModified).toStrictEqual(new LastModified(2, 'userB', Role.SUB_FAMILY_LEADER));
+    expect(updated.lastModified).toStrictEqual(new LastModified(2, 'userB', 'image', Role.SUB_FAMILY_LEADER));
   });
 
   it('DeleteById - 존재하지 않는 경우', async () => {

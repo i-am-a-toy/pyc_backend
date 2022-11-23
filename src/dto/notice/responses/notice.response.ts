@@ -5,6 +5,7 @@ export class NoticeResponse {
   readonly title: string;
   readonly content: string;
   readonly name: string;
+  readonly image: string;
   readonly role: string;
   readonly createdAt: Date;
   readonly lastModifiedAt: Date;
@@ -14,6 +15,7 @@ export class NoticeResponse {
     this.title = e.title;
     this.content = e.content;
     this.name = e.createdUser ? e.createdUser.name : e.created.name;
+    this.image = e.createdUser ? e.createdUser.image : e.created.image;
     this.role = e.createdUser ? e.createdUser.role.name : e.created.role.name;
     this.createdAt = e.createdAt;
     this.lastModifiedAt = e.lastModifiedAt;
