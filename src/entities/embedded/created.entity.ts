@@ -9,6 +9,9 @@ export class Created {
   @Column({ type: 'varchar', name: 'created_name', nullable: false, comment: '작성자의 작성 시점의 이름' })
   name!: string;
 
+  @Column({ nullable: false, type: 'varchar', comment: '작성자 프로필 이미지' })
+  image!: string;
+
   @Column({
     type: 'varchar',
     name: 'created_role',
@@ -18,9 +21,10 @@ export class Created {
   })
   role!: Role;
 
-  constructor(by: number, name: string, role: Role) {
+  constructor(by: number, name: string, image: string, role: Role) {
     this.by = by;
     this.name = name;
+    this.image = image;
     this.role = role;
   }
 }

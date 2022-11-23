@@ -9,6 +9,9 @@ export class LastModified {
   @Column({ type: 'varchar', name: 'last_modified_name', nullable: false, comment: '수정자' })
   name!: string;
 
+  @Column({ nullable: false, type: 'varchar', comment: '수정자 프로필 이미지' })
+  image!: string;
+
   @Column({
     type: 'varchar',
     name: 'last_modified_role',
@@ -18,9 +21,10 @@ export class LastModified {
   })
   role!: Role;
 
-  constructor(by: number, name: string, role: Role) {
+  constructor(by: number, name: string, image: string, role: Role) {
     this.by = by;
     this.name = name;
+    this.image = image;
     this.role = role;
   }
 }
