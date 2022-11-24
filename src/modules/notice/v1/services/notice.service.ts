@@ -8,6 +8,7 @@ import { NoticeResponse } from 'src/dto/notice/responses/notice.response';
 import { Church } from 'src/entities/church/church.entity';
 import { Notice } from 'src/entities/notice/notice.entity';
 import { User } from 'src/entities/user/user.entity';
+import { SortType } from 'src/enum/sort-type.enum';
 import { DataSource, EntityNotFoundError, Repository, SelectQueryBuilder } from 'typeorm';
 import { INoticeService } from '../interfaces/notcie-service.interface';
 
@@ -39,11 +40,11 @@ export class NoticeService implements INoticeService {
     }
   }
 
-  async findAll(churchId: number, offset: number, limit: number): Promise<NoticeListResponse> {
+  async findAll(churchId: number, offset: number, limit: number, sort: SortType): Promise<NoticeListResponse> {
     const [entities, count] = await this.getDefaultFindQueryBuild(churchId)
       .offset(offset)
       .limit(limit)
-      .orderBy('notice.created_at', 'DESC')
+      .orderBy('notice.created_at', sort)
       .getManyAndCount();
 
     return new NoticeListResponse(entities, count);
