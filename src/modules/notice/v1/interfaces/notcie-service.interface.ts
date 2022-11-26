@@ -3,10 +3,11 @@ import { CreateNoticeRequest } from 'src/dto/notice/requests/create-notice.reque
 import { UpdateNoticeRequest } from 'src/dto/notice/requests/update-notice.request';
 import { NoticeListResponse } from 'src/dto/notice/responses/notice-list.response';
 import { NoticeResponse } from 'src/dto/notice/responses/notice.response';
+import { SortType } from 'src/enum/sort-type.enum';
 
 export interface INoticeService {
   save(user: PycUser, req: CreateNoticeRequest): Promise<void>;
-  findAll(churchId: number, offset: number, limit: number): Promise<NoticeListResponse>;
+  findAll(churchId: number, offset: number, limit: number, sort: SortType): Promise<NoticeListResponse>;
   findOneById(churchId: number, id: number): Promise<NoticeResponse>;
   update(user: PycUser, id: number, req: UpdateNoticeRequest): Promise<void>;
   deleteById(churchId: number, id: number): Promise<void>;

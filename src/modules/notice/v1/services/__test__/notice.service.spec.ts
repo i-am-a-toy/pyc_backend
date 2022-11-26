@@ -12,6 +12,7 @@ import { LastModified } from 'src/entities/embedded/last-modified.entity';
 import { Family } from 'src/entities/family/family.entity';
 import { Notice } from 'src/entities/notice/notice.entity';
 import { User } from 'src/entities/user/user.entity';
+import { SortType } from 'src/enum/sort-type.enum';
 import { Gender } from 'src/types/gender/gender.type';
 import { Rank } from 'src/types/rank/rank.type';
 import { Role } from 'src/types/role/role.type';
@@ -111,8 +112,8 @@ describe('Notice Service Test', () => {
     expect(result.churchId).toBe(1);
     expect(result.title).toBe('title');
     expect(result.content).toBe('content');
-    expect(result.created).toStrictEqual(new Created(1, 'userA', Role.LEADER));
-    expect(result.lastModified).toStrictEqual(new LastModified(1, 'userA', Role.LEADER));
+    expect(result.created).toStrictEqual(new Created(1, 'userA', 'image', Role.LEADER));
+    expect(result.lastModified).toStrictEqual(new LastModified(1, 'userA', 'image', Role.LEADER));
   });
 
   it('FindOneById Test - 존재하지 않는 경우', async () => {
@@ -179,7 +180,7 @@ describe('Notice Service Test', () => {
     const offset = 20;
 
     //when
-    const result = await service.findAll(churchId, offset, limit);
+    const result = await service.findAll(churchId, offset, limit, SortType.DESC);
 
     //then
     expect(result).toStrictEqual(new NoticeListResponse([], 0));
@@ -200,7 +201,7 @@ describe('Notice Service Test', () => {
     await service.save(pycUser, req);
 
     //when
-    const { rows, count } = await service.findAll(churchA.id, offset, limit);
+    const { rows, count } = await service.findAll(churchA.id, offset, limit, SortType.DESC);
 
     //then
     const [selected] = rows;
@@ -223,7 +224,7 @@ describe('Notice Service Test', () => {
     await service.save(pycUser, req);
 
     //when
-    const { rows, count } = await service.findAll(churchA.id, offset, limit);
+    const { rows, count } = await service.findAll(churchA.id, offset, limit, SortType.DESC);
 
     //then
     const [selected] = rows;
@@ -247,12 +248,38 @@ describe('Notice Service Test', () => {
     await dataSource.manager.remove(leaderA);
 
     //when
-    const { rows, count } = await service.findAll(churchA.id, offset, limit);
+    const { rows, count } = await service.findAll(churchA.id, offset, limit, SortType.DESC);
 
     //then
     const [noticeB, noticeA] = rows;
     expect(noticeB.id).toBe(2);
     expect(noticeA.id).toBe(1);
+    expect(count).toBe(2);
+  });
+
+  it('FindAll Test - 검색 결과가 있는 경우 with 정렬', async () => {
+    //given
+    const offset = 0;
+    const limit = 2;
+
+    const [churchA] = await dataSource.manager.save(Church, mockChurchs);
+    const [leaderA] = await dataSource.manager.save(User, [
+      getMockUser('userA', Role.LEADER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+    ]);
+    const pycUser = new PycUser('tokenId', churchA.id, leaderA.id, 'userA', Role.LEADER);
+    const req = plainToInstance(CreateNoticeRequest, { title: 'titleA', content: 'contentA' });
+    const req2 = plainToInstance(CreateNoticeRequest, { title: 'titleB', content: 'contentB' });
+    await service.save(pycUser, req);
+    await service.save(pycUser, req2);
+    await dataSource.manager.remove(leaderA);
+
+    //when
+    const { rows, count } = await service.findAll(churchA.id, offset, limit, SortType.ASC);
+
+    //then
+    const [noticeA, noticeB] = rows;
+    expect(noticeA.title).toBe('titleA');
+    expect(noticeB.title).toBe('titleB');
     expect(count).toBe(2);
   });
 
@@ -307,7 +334,7 @@ describe('Notice Service Test', () => {
     expect(updated.id).toBe(1);
     expect(updated.title).toBe('change');
     expect(updated.content).toBe('change');
-    expect(updated.lastModified).toStrictEqual(new LastModified(2, 'userB', Role.SUB_FAMILY_LEADER));
+    expect(updated.lastModified).toStrictEqual(new LastModified(2, 'userB', 'image', Role.SUB_FAMILY_LEADER));
   });
 
   it('DeleteById - 존재하지 않는 경우', async () => {

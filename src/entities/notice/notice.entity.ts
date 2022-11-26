@@ -34,6 +34,6 @@ export class Notice extends BaseTimeEntity {
   updateNotice(title: string, content: string, user: User) {
     this.title = title;
     this.content = content;
-    this.lastModified = new LastModified(user.id, user.name, user.role);
+    this.lastModified = new LastModified(user.id, user.name, user.image, user.role);
   }
 }

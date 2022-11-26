@@ -19,8 +19,8 @@ export class CreateNoticeRequest {
     e.church = church;
     e.title = this.title;
     e.content = this.content;
-    e.created = new Created(user.id, user.name, user.role);
-    e.lastModified = new LastModified(user.id, user.name, user.role);
+    e.created = new Created(user.id, user.name, user.image, user.role);
+    e.lastModified = new LastModified(user.id, user.name, user.image, user.role);
     return e;
   }
 }
