@@ -32,8 +32,8 @@ export class Notice extends BaseTimeEntity {
   @Column({ nullable: false, name: 'last_modified_by', type: 'integer', comment: '데이터 수정자' })
   lastModifiedBy!: number;
 
-  createdUser: User | null;
-  lastModifiedUser: User | null;
+  cUser: User;
+  mUser: User;
 
   static of(church: Church, user: User, title: string, content: string): Notice {
     const { id, name, role } = user;

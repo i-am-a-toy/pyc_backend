@@ -89,8 +89,8 @@ export class NoticeService implements INoticeService {
   private getDefaultFindQueryBuild(churchId: number): SelectQueryBuilder<Notice> {
     return this.repository
       .createQueryBuilder('notice')
-      .leftJoinAndMapOne('createdUser', User, 'c_user', 'notice.created_by = c_user.id')
-      .leftJoinAndMapOne('lastModifiedUser', User, 'm_user', 'notice.last_modified_by = m_user.id')
+      .leftJoinAndMapOne('notice.cUser', User, 'c_user', 'notice.created_by = c_user.id')
+      .leftJoinAndMapOne('notice.mUser', User, 'm_user', 'notice.last_modified_by = m_user.id')
       .where('notice.church_id = :churchId', { churchId });
   }
 }
