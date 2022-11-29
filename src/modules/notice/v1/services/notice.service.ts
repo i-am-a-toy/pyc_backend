@@ -26,9 +26,14 @@ export class NoticeService implements INoticeService {
     await qr.startTransaction();
 
     try {
+      // find church & writer
       const church = await qr.manager.findOneByOrFail(Church, { id: user.churchId });
       const writer = await qr.manager.findOneByOrFail(User, { churchId: user.churchId, id: user.userId });
+
+      // generate Entity
       const entity = req.toEntity(church, writer);
+
+      // save Notice & commit
       await qr.manager.save(Notice, entity);
       await qr.commitTransaction();
     } catch (e) {

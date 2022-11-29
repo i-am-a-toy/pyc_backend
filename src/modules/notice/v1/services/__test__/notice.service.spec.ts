@@ -7,8 +7,8 @@ import { UpdateNoticeRequest } from 'src/dto/notice/requests/update-notice.reque
 import { NoticeListResponse } from 'src/dto/notice/responses/notice-list.response';
 import { Cell } from 'src/entities/cell/cell.entity';
 import { Church } from 'src/entities/church/church.entity';
-import { Created } from 'src/entities/embedded/created.entity';
-import { LastModified } from 'src/entities/embedded/last-modified.entity';
+import { Creator } from 'src/entities/embedded/creator.entity';
+import { LastModifier } from 'src/entities/embedded/last-modifier.entity';
 import { Family } from 'src/entities/family/family.entity';
 import { Notice } from 'src/entities/notice/notice.entity';
 import { User } from 'src/entities/user/user.entity';
@@ -109,11 +109,16 @@ describe('Notice Service Test', () => {
 
     //then
     const result = await dataSource.manager.findOneByOrFail(Notice, { churchId: churchA.id, id: 1 });
-    expect(result.churchId).toBe(1);
-    expect(result.title).toBe('title');
-    expect(result.content).toBe('content');
-    expect(result.created).toStrictEqual(new Created(1, 'userA', 'image', Role.LEADER));
-    expect(result.lastModified).toStrictEqual(new LastModified(1, 'userA', 'image', Role.LEADER));
+
+    const { id, churchId, title, content, creator, lastModifier, createdBy, lastModifiedBy } = result;
+    expect(id).toBe(1);
+    expect(churchId).toBe(1);
+    expect(title).toBe('title');
+    expect(content).toBe('content');
+    expect(creator).toStrictEqual(new Creator('userA', Role.LEADER));
+    expect(lastModifier).toStrictEqual(new LastModifier('userA', Role.LEADER));
+    expect(createdBy).toBe(1);
+    expect(lastModifiedBy).toBe(1);
   });
 
   it('FindOneById Test - 존재하지 않는 경우', async () => {
@@ -334,7 +339,6 @@ describe('Notice Service Test', () => {
     expect(updated.id).toBe(1);
     expect(updated.title).toBe('change');
     expect(updated.content).toBe('change');
-    expect(updated.lastModified).toStrictEqual(new LastModified(2, 'userB', 'image', Role.SUB_FAMILY_LEADER));
   });
 
   it('DeleteById - 존재하지 않는 경우', async () => {
