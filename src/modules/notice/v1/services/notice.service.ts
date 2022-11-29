@@ -26,9 +26,14 @@ export class NoticeService implements INoticeService {
     await qr.startTransaction();
 
     try {
+      // find church & writer
       const church = await qr.manager.findOneByOrFail(Church, { id: user.churchId });
       const writer = await qr.manager.findOneByOrFail(User, { churchId: user.churchId, id: user.userId });
+
+      // generate Entity
       const entity = req.toEntity(church, writer);
+
+      // save Notice & commit
       await qr.manager.save(Notice, entity);
       await qr.commitTransaction();
     } catch (e) {
@@ -84,8 +89,8 @@ export class NoticeService implements INoticeService {
   private getDefaultFindQueryBuild(churchId: number): SelectQueryBuilder<Notice> {
     return this.repository
       .createQueryBuilder('notice')
-      .leftJoinAndMapOne('createdUser', User, 'c_user', 'notice.created_by = c_user.id')
-      .leftJoinAndMapOne('lastModifiedUser', User, 'm_user', 'notice.last_modified_by = m_user.id')
+      .leftJoinAndMapOne('notice.cUser', User, 'c_user', 'notice.created_by = c_user.id')
+      .leftJoinAndMapOne('notice.mUser', User, 'm_user', 'notice.last_modified_by = m_user.id')
       .where('notice.church_id = :churchId', { churchId });
   }
 }
