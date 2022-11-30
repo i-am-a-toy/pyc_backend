@@ -207,6 +207,33 @@ describe('Notice Comment Service Test', () => {
     expect(selectedD.comment).toBe('commentD');
   });
 
+  it('FindAll Comment Test - 조회 결과가 있는 경우 with 삭제된 User', async () => {
+    //given
+    const [churchA] = await dataSource.manager.save(mockChurchs);
+    const [writerA] = await dataSource.manager.save(User, [
+      getMockUser('userA', Role.LEADER, Rank.INFANT_BAPTISM, Gender.MALE, null),
+    ]);
+    const [noticeA] = await dataSource.manager.save(Notice, [Notice.of(churchA, writerA, 'title', 'content')]);
+
+    const [commentA, commentB] = await dataSource.manager.save(NoticeComment, [
+      NoticeComment.of(churchA, noticeA, writerA, 'commentA'),
+      NoticeComment.of(churchA, noticeA, writerA, 'commentB'),
+    ]);
+    await dataSource.manager.remove(writerA);
+
+    const pycUser = new PycUser('tokenId', churchA.id, writerA.id, 'userA', Role.LEADER);
+
+    //when
+    const result = await service.findAll(pycUser, noticeA.id, 0, 20);
+    const { rows, count } = result;
+    //then
+    const [selectedA, selectedB] = rows;
+
+    expect(count).toBe(2);
+    expect(selectedA.creator.image).toBeNull();
+    expect(selectedB.creator.image).toBeNull();
+  });
+
   it('Update Test - target이 존재하지 않는 경우', async () => {
     //given
     const churchId = 1;
