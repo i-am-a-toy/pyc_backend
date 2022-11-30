@@ -4,7 +4,7 @@ import { V1NoticeCommentModule } from './v1/v1-notice-comment.module';
 
 @Module({
   imports: [
-    NoticeCommentModule,
+    V1NoticeCommentModule,
     RouterModule.register([
       {
         module: V1NoticeCommentModule,
