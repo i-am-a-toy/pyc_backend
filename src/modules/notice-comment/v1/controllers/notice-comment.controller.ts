@@ -37,7 +37,7 @@ export class NoticeCommentController {
     @Param('id', ParseIntPipe) id: number,
     @Body() req: UpdateNoticeCommentRequest,
   ): Promise<void> {
-    await this.service.update(pycUser, id, req.commnet);
+    await this.service.update(pycUser, id, req.comment);
   }
 
   @Delete('/:id')
