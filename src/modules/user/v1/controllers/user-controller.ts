@@ -8,6 +8,12 @@ import { IUserService, UserServicekey } from '../interfaces/user-service.interfa
 export class UserController {
   constructor(@Inject(UserServicekey) private readonly service: IUserService) {}
 
+  @Get('/me')
+  async fetchMe(@PycContext() user: PycUser): Promise<UserResponse> {
+    const { churchId, userId } = user;
+    return this.service.findUserById(churchId, userId);
+  }
+
   @Get('/:id')
   async getProfile(@PycContext() user: PycUser, @Param('id', ParseIntPipe) id: number): Promise<UserResponse> {
     return this.service.findUserById(user.churchId, id);

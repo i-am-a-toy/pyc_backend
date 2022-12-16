@@ -1,8 +1,8 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseTimeEntity } from '../base-time.entity';
 import { Church } from '../church/church.entity';
-import { Created } from '../embedded/created.entity';
-import { LastModified } from '../embedded/last-modified.entity';
+import { Creator } from '../embedded/creator.entity';
+import { LastModifier } from '../embedded/last-modifier.entity';
 import { User } from '../user/user.entity';
 
 @Entity({ name: 'notices' })
@@ -17,21 +17,41 @@ export class Notice extends BaseTimeEntity {
   @Column({ type: 'varchar', nullable: false, comment: '공지사항의 제목' })
   title!: string;
 
-  @Column({ type: 'varchar', nullable: false, comment: '공지사항의 본문' })
+  @Column({ type: 'text', nullable: false, comment: '공지사항의 본문' })
   content!: string;
 
-  @Column(() => Created, { prefix: false })
-  created: Created;
+  @Column(() => Creator, { prefix: false })
+  creator!: Creator;
 
-  @Column(() => LastModified, { prefix: false })
-  lastModified: LastModified;
+  @Column({ nullable: false, name: 'created_by', type: 'integer', comment: '데이터 생성자' })
+  createdBy!: number;
 
-  createdUser!: User;
-  lastModifiedUser!: User;
+  @Column(() => LastModifier, { prefix: false })
+  lastModifier!: LastModifier;
+
+  @Column({ nullable: false, name: 'last_modified_by', type: 'integer', comment: '데이터 수정자' })
+  lastModifiedBy!: number;
+
+  cUser: User;
+  mUser: User;
+
+  static of(church: Church, user: User, title: string, content: string): Notice {
+    const { id, name, role } = user;
+    const e = new Notice();
+    e.church = church;
+    e.title = title;
+    e.content = content;
+    e.creator = new Creator(name, role);
+    e.createdBy = id;
+    e.lastModifier = new LastModifier(name, role);
+    e.lastModifiedBy = id;
+    return e;
+  }
 
   updateNotice(title: string, content: string, user: User) {
     this.title = title;
     this.content = content;
-    this.lastModified = new LastModified(user.id, user.name, user.role);
+    this.lastModifiedBy = user.id;
+    this.lastModifier = new LastModifier(user.name, user.role);
   }
 }
