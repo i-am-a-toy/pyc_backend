@@ -1,11 +1,12 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseTimeEntity } from '../base-time.entity';
 import { Church } from '../church/church.entity';
-import { Created } from '../embedded/created.entity';
-import { LastModified } from '../embedded/last-modified.entity';
+import { Creator } from '../embedded/creator.entity';
+import { LastModifier } from '../embedded/last-modifier.entity';
+import { User } from '../user/user.entity';
 
-@Entity({ name: 'calendar_events' })
-export class CalendarEvent extends BaseTimeEntity {
+@Entity({ name: 'calendars' })
+export class Calendar extends BaseTimeEntity {
   @Column({ name: 'church_id', nullable: false, type: 'integer', comment: '사용자가 속한 셀 교회' })
   churchId!: number;
 
@@ -28,9 +29,18 @@ export class CalendarEvent extends BaseTimeEntity {
   @Column({ type: 'boolean', nullable: false, comment: '이벤트의 Duration' })
   isAllDay: boolean;
 
-  @Column(() => Created, { prefix: false })
-  created: Created;
+  @Column(() => Creator, { prefix: false })
+  creator: Creator;
 
-  @Column(() => LastModified, { prefix: false })
-  lastModified: LastModified;
+  @Column({ type: 'timestamptz', nullable: false, comment: '생성일' })
+  createdBy: Date;
+
+  @Column(() => LastModifier, { prefix: false })
+  lastModifier: LastModifier;
+
+  @Column({ type: 'timestamptz', nullable: false, comment: '수정일' })
+  lastModifiedAt: Date;
+
+  cUser: User;
+  mUser: User;
 }

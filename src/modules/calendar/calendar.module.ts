@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
 import { RouterModule } from '@nestjs/core';
-import { V1CalendarEventModule } from './v1/v1-calendar-event.module';
+import { V1CalendarModule } from './v1/v1-calendar-event.module';
 
 @Module({
   imports: [
-    V1CalendarEventModule,
+    V1CalendarModule,
     RouterModule.register([
       {
         path: '/api/v1',
-        module: V1CalendarEventModule,
+        module: V1CalendarModule,
       },
     ]),
   ],
 })
-export class CalendarEventModule {}
+export class CalendarModule {}
