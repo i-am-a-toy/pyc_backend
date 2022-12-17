@@ -1,19 +1,21 @@
-import { IsDateString, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 
-export class UpdateCalendarEventRequest {
+export class UpdateCalendarRequest {
   @IsString()
   @IsNotEmpty()
   readonly title: string;
 
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   readonly content: string;
 
-  @IsDateString()
   @IsNotEmpty()
   readonly start: Date;
 
-  @IsDateString()
   @IsNotEmpty()
   readonly end: Date;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  readonly isAllDay: boolean;
 }
