@@ -1,6 +1,6 @@
 import { plainToInstance } from 'class-transformer';
-import { CreateCalendarRequest } from 'src/dto/calendar-event/requests/create-calendar.request';
-import { UpdateCalendarRequest } from 'src/dto/calendar-event/requests/update-calendar.request';
+import { CreateCalendarRequest } from 'src/dto/calendar/requests/create-calendar.request';
+import { UpdateCalendarRequest } from 'src/dto/calendar/requests/update-calendar.request';
 import { PycUser } from 'src/dto/common/dto/pyc-user.dto';
 import { Calendar } from 'src/entities/calendar-event/calendar.entity';
 import { Cell } from 'src/entities/cell/cell.entity';

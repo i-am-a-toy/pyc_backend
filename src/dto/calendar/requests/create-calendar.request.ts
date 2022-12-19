@@ -12,19 +12,19 @@ export class CreateCalendarRequest {
   @IsNotEmpty()
   readonly content: string;
 
-  @IsDate()
+  @IsDateString()
   @IsNotEmpty()
-  readonly start: Date;
+  readonly start: string;
 
-  @IsDate()
+  @IsDateString()
   @IsNotEmpty()
-  readonly end: Date;
+  readonly end: string;
 
   @IsBoolean()
   @IsNotEmpty()
   readonly isAllDay: boolean;
 
   toEntity(church: Church, user: User): Calendar {
-    return Calendar.of(church, user, this.start, this.end, this.isAllDay, this.title, this.content);
+    return Calendar.of(church, user, new Date(this.start), new Date(this.end), this.isAllDay, this.title, this.content);
   }
 }
