@@ -3,6 +3,7 @@ import { LastModifierDto } from 'src/dto/common/dto/last-modifier.dto';
 import { Calendar } from 'src/entities/calendar-event/calendar.entity';
 
 export class CalendarResponse {
+  readonly id: number;
   readonly churchId: number;
   readonly title: string;
   readonly content: string;
@@ -11,10 +12,11 @@ export class CalendarResponse {
   readonly isAllDay: boolean;
   readonly creator: CreatorDto;
   readonly createdAt: Date;
-  readonly lastModifiedName: string;
   readonly lastModifier: LastModifierDto;
+  readonly lastModifiedAt: Date;
 
   constructor(e: Calendar) {
+    this.id = e.id;
     this.churchId = e.churchId;
     this.title = e.title;
     this.content = e.content ?? '';
@@ -24,5 +26,6 @@ export class CalendarResponse {
     this.creator = new CreatorDto(e.cUser, e.creator);
     this.createdAt = e.createdAt;
     this.lastModifier = new LastModifierDto(e.mUser, e.lastModifier);
+    this.lastModifiedAt = e.lastModifiedAt;
   }
 }
