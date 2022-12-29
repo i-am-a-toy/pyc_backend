@@ -3,8 +3,8 @@ import { Calendar } from 'src/entities/calendar-event/calendar.entity';
 import { CalendarResponse } from './calendar.response';
 
 export class CalendarListResponse extends BaseListResponse<CalendarResponse> {
-  constructor(entiies: Calendar[], count: number) {
-    const rows = entiies.map((e) => new CalendarResponse(e));
+  constructor(entities: Calendar[], count: number) {
+    const rows = entities.map((e) => new CalendarResponse(e));
     super(rows, count);
   }
 }

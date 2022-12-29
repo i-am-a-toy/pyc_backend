@@ -1,11 +1,11 @@
 import { Body, Controller, Get, Inject, Param, Post, Put, Query } from '@nestjs/common';
+import { Delete } from '@nestjs/common/decorators';
 import { PycContext } from 'src/core/decorator/pyc-user.decorator';
 import { CalendarListQuery } from 'src/dto/calendar/requests/calendar-list.query';
 import { CreateCalendarRequest } from 'src/dto/calendar/requests/create-calendar.request';
 import { UpdateCalendarRequest } from 'src/dto/calendar/requests/update-calendar.request';
 import { CalendarListResponse } from 'src/dto/calendar/responses/calendar-list.response';
 import { PycUser } from 'src/dto/common/dto/pyc-user.dto';
-import { OffsetWithoutLimitNotSupportedError } from 'typeorm';
 import { ICalendarService } from '../interfaces/calendar-service.interface';
 import { CalendarServiceKey } from '../services/calendar.service';
 
@@ -36,7 +36,7 @@ export class CalendarController {
     await this.service.update(pycUser, id, req);
   }
 
-  @Put('/:id')
+  @Delete('/:id')
   async delete(@PycContext() pycUser: PycUser, @Param('id') id: number): Promise<void> {
     await this.service.delete(pycUser, id);
   }

@@ -32,13 +32,13 @@ export class Calendar extends BaseTimeEntity {
   @Column(() => Creator, { prefix: false })
   creator: Creator;
 
-  @Column({ type: 'integer', nullable: false, comment: '생성자' })
+  @Column({ type: 'integer', nullable: false, comment: '생성자', name: 'created_by' })
   createdBy: number;
 
   @Column(() => LastModifier, { prefix: false })
   lastModifier: LastModifier;
 
-  @Column({ type: 'integer', nullable: false, comment: '수정자' })
+  @Column({ type: 'integer', nullable: false, comment: '수정자', name: 'last_modified_by' })
   lastModifiedBy: number;
 
   cUser: User;
@@ -70,7 +70,7 @@ export class Calendar extends BaseTimeEntity {
     return e;
   }
 
-  uddateCalendar(user: User, start: Date, end: Date, isAllDay: boolean, title: string, content: string) {
+  updateCalendar(user: User, start: Date, end: Date, isAllDay: boolean, title: string, content: string) {
     this.start = start;
     this.end = end;
     this.isAllDay = isAllDay;

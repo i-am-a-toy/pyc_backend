@@ -15,5 +15,5 @@ export interface ICalendarService {
   //U
   update(pycUser: PycUser, targetId: number, req: UpdateCalendarRequest): Promise<void>;
   //D
-  delete(pycUser: PycUser, targeteId: number): Promise<void>;
+  delete(pycUser: PycUser, targetId: number): Promise<void>;
 }
