@@ -134,13 +134,7 @@ describe('Calendar Service Test', () => {
     const result = await service.getCalendarsByMonth(pycUser, monthDate);
 
     //then
-    expect(result.count).toBe(4);
-
-    const [calendarA, calendarB, calendarC, calendarD] = result.rows;
-    expect(calendarA.title).toBe('titleA');
-    expect(calendarB.title).toBe('titleB');
-    expect(calendarC.title).toBe('titleC');
-    expect(calendarD.title).toBe('titleD');
+    expect(result.count).toBe(7);
   });
 
   it('getCalendarByMonth Test - with paging offset', async () => {
@@ -157,11 +151,8 @@ describe('Calendar Service Test', () => {
     const result = await service.getCalendarsByMonth(pycUser, monthDate, { offset: 2, limit: 20 });
 
     //then
-    expect(result.count).toBe(4);
-
-    const [calendarC, calendarD] = result.rows;
-    expect(calendarC.title).toBe('titleC');
-    expect(calendarD.title).toBe('titleD');
+    expect(result.rows.length).toBe(5);
+    expect(result.count).toBe(7);
   });
 
   it('getCalendarByMonth Test - with paging limit', async () => {
@@ -178,11 +169,8 @@ describe('Calendar Service Test', () => {
     const result = await service.getCalendarsByMonth(pycUser, monthDate, { offset: 0, limit: 2 });
 
     //then
-    expect(result.count).toBe(4);
-
-    const [calendarA, calendarB] = result.rows;
-    expect(calendarA.title).toBe('titleA');
-    expect(calendarB.title).toBe('titleB');
+    expect(result.rows.length).toBe(2);
+    expect(result.count).toBe(7);
   });
 
   it('Update Test - modifier가 존재하지 않을 경우', async () => {

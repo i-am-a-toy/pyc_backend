@@ -32,13 +32,13 @@ export class Calendar extends BaseTimeEntity {
   @Column(() => Creator, { prefix: false })
   creator: Creator;
 
-  @Column({ type: 'integer', nullable: false, comment: '생성자' })
+  @Column({ type: 'integer', nullable: false, comment: '생성자', name: 'created_by' })
   createdBy: number;
 
   @Column(() => LastModifier, { prefix: false })
   lastModifier: LastModifier;
 
-  @Column({ type: 'integer', nullable: false, comment: '수정자' })
+  @Column({ type: 'integer', nullable: false, comment: '수정자', name: 'last_modified_by' })
   lastModifiedBy: number;
 
   cUser: User;

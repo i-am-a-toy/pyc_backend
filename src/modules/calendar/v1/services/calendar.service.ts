@@ -8,7 +8,7 @@ import { Calendar } from 'src/entities/calendar-event/calendar.entity';
 import { Church } from 'src/entities/church/church.entity';
 import { User } from 'src/entities/user/user.entity';
 import { getMonthFirstDay, getMonthLastDay } from 'src/utils/date';
-import { DataSource, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { ICalendarService } from '../interfaces/calendar-service.interface';
 
 export const CalendarServiceKey = 'CalendarServiceKey';
@@ -47,16 +47,27 @@ export class CalendarService implements ICalendarService {
     options?: { offset: number; limit: number } | undefined,
   ): Promise<CalendarListResponse> {
     const { churchId } = pycUser;
-    const [rows, count] = await this.repository.findAndCount({
-      where: {
-        start: MoreThanOrEqual(getMonthFirstDay(monthDate)),
-        end: LessThanOrEqual(getMonthLastDay(monthDate)),
-        churchId: churchId,
-      },
-      order: { start: 'ASC' },
-      skip: options?.offset,
-      take: options?.limit,
-    });
+
+    const first = getMonthFirstDay(monthDate);
+    const last = getMonthLastDay(monthDate);
+    const [rows, count] = await this.repository
+      .createQueryBuilder('calendar')
+      .leftJoinAndMapOne('calendar.cUser', User, 'c_user', 'calendar.created_by = c_user.id')
+      .leftJoinAndMapOne('calendar.mUser', User, 'm_user', 'calendar.last_modified_by = m_user.id')
+      .where(
+        `"calendar"."church_id" = :churchId
+        AND (
+          ("calendar"."start" >= :first AND "calendar"."end" <= :last) OR -- 월 안에 있는
+          ("calendar"."start" <= :first AND :last <= "calendar"."end") OR -- start end 둘다 월 밖에 있을 경우
+          ("calendar"."start" <= :first AND ("calendar"."end" >= :first AND "calendar"."end" <= :last)) OR -- start는 월 밖에 end는 월 안에
+          (("calendar"."start" >= :first AND "calendar"."start" <= :last) AND :last <= "calendar"."end") -- start는 월 안에 end는 월 밖에
+        )`,
+        { churchId, first, last },
+      )
+      .orderBy('calendar.start', 'ASC')
+      .offset(options?.offset)
+      .limit(options?.limit)
+      .getManyAndCount();
 
     return new CalendarListResponse(rows, count);
   }
