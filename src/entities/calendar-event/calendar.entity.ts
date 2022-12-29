@@ -70,7 +70,7 @@ export class Calendar extends BaseTimeEntity {
     return e;
   }
 
-  uddateCalendar(user: User, start: Date, end: Date, isAllDay: boolean, title: string, content: string) {
+  updateCalendar(user: User, start: Date, end: Date, isAllDay: boolean, title: string, content: string) {
     this.start = start;
     this.end = end;
     this.isAllDay = isAllDay;

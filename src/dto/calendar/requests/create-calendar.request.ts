@@ -1,4 +1,4 @@
-import { IsBoolean, IsDate, IsDateString, IsNotEmpty, IsString } from 'class-validator';
+import { IsBoolean, IsDateString, IsNotEmpty, IsString } from 'class-validator';
 import { Calendar } from 'src/entities/calendar-event/calendar.entity';
 import { Church } from 'src/entities/church/church.entity';
 import { User } from 'src/entities/user/user.entity';

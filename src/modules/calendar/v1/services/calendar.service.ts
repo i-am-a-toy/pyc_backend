@@ -84,7 +84,7 @@ export class CalendarService implements ICalendarService {
 
       //update & Save
       const { start, end, isAllDay, title, content } = req;
-      target.uddateCalendar(modifier, start, end, isAllDay, title, content);
+      target.updateCalendar(modifier, start, end, isAllDay, title, content);
       await qr.manager.save(target);
       await qr.commitTransaction();
     } catch (e) {
@@ -96,7 +96,7 @@ export class CalendarService implements ICalendarService {
     }
   }
 
-  async delete(pycUser: PycUser, targeteId: number): Promise<void> {
-    await this.repository.delete({ churchId: pycUser.churchId, id: targeteId });
+  async delete(pycUser: PycUser, targetId: number): Promise<void> {
+    await this.repository.delete({ churchId: pycUser.churchId, id: targetId });
   }
 }
