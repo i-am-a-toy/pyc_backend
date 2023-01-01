@@ -1,28 +1,45 @@
+/**
+ * getJsMonth
+ *
+ * @description JS에서 Date.getMonth()를 하게 되면 해당 (월 - 1)을 해주게 된다.
+ * FE에서 받는 Month를 getMonth()와 동일하게 parsing
+ * @param month{@link month}
+ * @returns month - 1
+ */
+export const getJsMonth = (month: number): number => {
+  return month === 1 ? 0 : month - 1;
+};
+
+/**
+ * getMonthString
+ *
+ * @description JsMonth를 parsing하여 month를 String으로 반환하는 method
+ * @param month {@link month} JsMonth로 (월 - 1)이 들어오게 된다.
+ * @returns 1월 "01" , 2~9월 "0${month + 1}", 10월부터 11월 "${month +1}"
+ */
+export const getMonthString = (month: number): string => {
+  if (month === 0) {
+    return '01';
+  } else if (10 > month) {
+    return `0${month + 1}`;
+  } else {
+    return `${month + 1}`;
+  }
+};
+
 export const getYearString = (date: Date): string => {
   return date.getFullYear().toString();
 };
 
-export const getMonthString = (date: Date): string => {
-  const monthString = date.getMonth().toString();
-
-  if (monthString === '0') {
-    return '01';
-  } else if (monthString.length === 1) {
-    return `0${monthString}`;
-  } else {
-    return (+monthString + 1).toString();
-  }
-};
-
 export const getMonthFirstDay = (date: Date): Date => {
   const year = getYearString(date);
-  const month = getMonthString(date);
+  const month = getMonthString(date.getMonth());
   return new Date(`${year}-${month}-01`);
 };
 
 export const getMonthLastDay = (date: Date): Date => {
   const year = getYearString(date);
-  const month = getMonthString(date);
+  const month = getMonthString(date.getMonth());
   return new Date(`${year}-${month}-${new Date(+year, +month, 0).getDate()}`);
 };
 

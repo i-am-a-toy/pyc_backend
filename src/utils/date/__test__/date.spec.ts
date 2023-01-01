@@ -24,7 +24,7 @@ describe('Custom Date Function', () => {
     const date = new Date('2022-11-03');
 
     //when
-    const result = getMonthString(date);
+    const result = getMonthString(date.getMonth());
 
     //then
     expect(result).toBe('11');
