@@ -7,7 +7,7 @@ import { PycUser } from 'src/dto/common/dto/pyc-user.dto';
 import { Calendar } from 'src/entities/calendar-event/calendar.entity';
 import { Church } from 'src/entities/church/church.entity';
 import { User } from 'src/entities/user/user.entity';
-import { getMonthLastDay } from 'src/utils/date';
+import { getMonthFirstDay, getMonthLastDay, getMonthString, getPrevMonthLastDay } from 'src/utils/date';
 import { DataSource, Repository } from 'typeorm';
 import { ICalendarService } from '../interfaces/calendar-service.interface';
 
@@ -47,7 +47,7 @@ export class CalendarService implements ICalendarService {
     options?: { offset: number; limit: number } | undefined,
   ): Promise<CalendarListResponse> {
     const { churchId } = pycUser;
-    const first = monthDate;
+    const first = getPrevMonthLastDay(monthDate);
     const last = getMonthLastDay(monthDate);
 
     const [rows, count] = await this.repository

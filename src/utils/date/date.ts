@@ -43,6 +43,19 @@ export const getMonthLastDay = (date: Date): Date => {
   return new Date(`${year}-${month}-${new Date(+year, +month, 0).getDate()}`);
 };
 
+/**
+ * getPrevMonthLastDay
+ *
+ * @description 월의 첫번째 일 00시의 Date를 받아 이전 달 마지말 날을 구하는 method
+ * @param date {@link date} 월의 처음 날 00시 ex: 2022-12-01T00:00:00.000Z
+ * @returns 이전 달 마지막 날
+ */
+export const getPrevMonthLastDay = (date: Date): Date => {
+  const copyDate = new Date(date);
+  copyDate.setHours(-1);
+  return new Date(`${copyDate.getFullYear()}-${getMonthString(copyDate.getMonth())}-${copyDate.getDate()}`);
+};
+
 export const getYearFirstDay = (date: Date): Date => {
   return new Date(`${date.getFullYear().toString()}-01-01`);
 };
