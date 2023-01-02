@@ -3,7 +3,7 @@ import { GroupEntityModule } from 'src/entities/group/group-entity.module';
 import { GroupModule } from '../group.module';
 import { GroupService } from './services/group.service';
 
-const GROUP_SERVICE_KEY = 'groupServiceKey';
+export const GROUP_SERVICE_KEY = 'groupServiceKey';
 
 @Module({
   imports: [GroupEntityModule],
