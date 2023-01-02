@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Family } from './family.entity';
+import { Group } from './group.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Family])],
+  imports: [TypeOrmModule.forFeature([Group])],
   exports: [TypeOrmModule],
 })
-export class FamilyEntityModule {}
+export class GroupEntityModule {}

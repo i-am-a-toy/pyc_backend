@@ -5,11 +5,11 @@ import { plainToInstance } from 'class-transformer';
 import { ValidateResponse } from 'src/dto/common/responses/validate.response';
 import { CreateFamilyRequest } from 'src/dto/family/requests/create-family.request';
 import { UpdateFamilyRequest } from 'src/dto/family/requests/update-family.request';
-import { FamilyListResponse } from 'src/dto/family/responses/family-list.response';
+import { FamilyListResponse } from 'src/dto/family/responses/group-list.response';
 import { UserResponse } from 'src/dto/user/responses/user.response';
 import { Cell } from 'src/entities/cell/cell.entity';
 import { Church } from 'src/entities/church/church.entity';
-import { Family } from 'src/entities/family/family.entity';
+import { Family } from 'src/entities/group/group.entity';
 import { User } from 'src/entities/user/user.entity';
 import { Gender } from 'src/types/gender/gender.type';
 import { Rank } from 'src/types/rank/rank.type';
@@ -20,8 +20,8 @@ import { getMockFamily } from 'src/utils/mocks/families/mock';
 import { getMockUser } from 'src/utils/mocks/users/mock';
 import { PostgreSqlContainer, StartedPostgreSqlContainer } from 'testcontainers';
 import { DataSource, EntityNotFoundError, In } from 'typeorm';
-import { IFamilyService } from '../../interfaces/family-service.interface';
-import { FamilyService } from '../family.service';
+import { IFamilyService } from '../../interfaces/group-service.interface';
+import { FamilyService } from '../group.service';
 
 describe('Family Service Test', () => {
   jest.setTimeout(300_000);

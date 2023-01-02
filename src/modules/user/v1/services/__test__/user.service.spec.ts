@@ -8,7 +8,7 @@ import { UpdateUserRequest } from 'src/dto/user/requests/update-user.request';
 import { UserListResponse } from 'src/dto/user/responses/user-list.response';
 import { Cell } from 'src/entities/cell/cell.entity';
 import { Church } from 'src/entities/church/church.entity';
-import { Family } from 'src/entities/family/family.entity';
+import { Family } from 'src/entities/group/group.entity';
 import { User } from 'src/entities/user/user.entity';
 import { LEADER_TYPE } from 'src/enum/leader-type.enum';
 import { Gender } from 'src/types/gender/gender.type';

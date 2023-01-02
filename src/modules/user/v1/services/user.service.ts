@@ -7,7 +7,7 @@ import { UserListResponse } from 'src/dto/user/responses/user-list.response';
 import { UserResponse } from 'src/dto/user/responses/user.response';
 import { Cell } from 'src/entities/cell/cell.entity';
 import { Church } from 'src/entities/church/church.entity';
-import { Family } from 'src/entities/family/family.entity';
+import { Group } from 'src/entities/group/group.entity';
 import { User } from 'src/entities/user/user.entity';
 import { LEADER_TYPE } from 'src/enum/leader-type.enum';
 import { Rank } from 'src/types/rank/rank.type';
@@ -108,7 +108,7 @@ export class UserService implements IUserService {
   async findTobeFamilyLeader(churchId: number): Promise<UserListResponse> {
     const [rows, count] = await this.repository
       .createQueryBuilder('user')
-      .leftJoin(Family, 'family', '(user.id != family.leader_id OR user.id != family.sub_leader_id)')
+      .leftJoin(Group, 'family', '(user.id != family.leader_id OR user.id != family.sub_leader_id)')
       .where('(user.id != family.leader_id AND user.id != family.sub_leader_id)')
       .andWhere('user.role = :role', { role: Role.LEADER.enumName })
       .andWhere('family.church_id = :churchId', { churchId })
@@ -121,7 +121,7 @@ export class UserService implements IUserService {
     const [rows, count] = await this.repository
       .createQueryBuilder('user')
       .leftJoin(Cell, 'cell', 'user.cell_id = cell.id')
-      .leftJoin(Family, 'family', 'cell.family_id = family.id')
+      .leftJoin(Group, 'family', 'cell.family_id = family.id')
       .andWhere('family.church_id = :churchId', { churchId })
       .andWhere('family.id = :familyId', { familyId })
       .andWhere('user.role = :role', { role: Role.MEMBER.enumName })

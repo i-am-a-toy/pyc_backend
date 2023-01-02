@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 import { BaseTimeEntity } from '../base-time.entity';
 import { Church } from '../church/church.entity';
-import { Family } from '../family/family.entity';
+import { Group } from '../group/group.entity';
 import { User } from '../user/user.entity';
 
 @Entity({ name: 'cells' })
@@ -13,12 +13,12 @@ export class Cell extends BaseTimeEntity {
   @JoinColumn({ name: 'church_id' })
   church: Church;
 
-  @Column({ name: 'family_id', nullable: true, type: 'integer', comment: '셀이 속한 팸의 아이디' })
-  familyId: number | null;
+  @Column({ name: 'group_id', nullable: true, type: 'integer', comment: '셀이 속한 그룹의 아이디' })
+  groupId: number | null;
 
-  @ManyToOne(() => Family)
-  @JoinColumn({ name: 'family_id' })
-  family: Family | null;
+  @ManyToOne(() => Group)
+  @JoinColumn({ name: 'group_id' })
+  group: Group | null;
 
   @Column({ name: 'leader_id', nullable: false, type: 'integer', comment: '셀 리더의 아이디' })
   leaderId: number;
@@ -33,17 +33,17 @@ export class Cell extends BaseTimeEntity {
   @OneToMany(() => User, (user) => user.cell)
   members: User[];
 
-  static of(church: Church, family: Family | null, user: User): Cell {
+  static of(church: Church, group: Group | null, user: User): Cell {
     const cell = new Cell();
     cell.church = church;
-    cell.family = family;
+    cell.group = group;
     cell.leader = user;
     cell.name = `${user.name}셀`;
     return cell;
   }
 
-  changeFamily(family: Family | null): void {
-    this.family = family;
+  changeFamily(group: Group | null): void {
+    this.group = group;
   }
 
   changeLeader(user: User): void {

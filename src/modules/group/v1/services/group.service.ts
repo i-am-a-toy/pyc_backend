@@ -3,25 +3,25 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ValidateResponse } from 'src/dto/common/responses/validate.response';
 import { CreateFamilyRequest } from 'src/dto/family/requests/create-family.request';
 import { UpdateFamilyRequest } from 'src/dto/family/requests/update-family.request';
-import { DetailFamilyResponse } from 'src/dto/family/responses/detail-family.response';
-import { FamilyListResponse } from 'src/dto/family/responses/family-list.response';
+import { GroupListResponse } from 'src/dto/family/responses/group-list.response';
+import { GroupResponse } from 'src/dto/family/responses/group.response';
 import { Cell } from 'src/entities/cell/cell.entity';
 import { Church } from 'src/entities/church/church.entity';
-import { Family } from 'src/entities/family/family.entity';
+import { Group } from 'src/entities/group/group.entity';
 import { User } from 'src/entities/user/user.entity';
 import { Role } from 'src/types/role/role.type';
 import { DataSource, QueryRunner, Repository } from 'typeorm';
-import { IFamilyService } from '../interfaces/family-service.interface';
+import { IGroupService } from '../interfaces/group-service.interface';
 
-export class FamilyService implements IFamilyService {
-  private readonly logger: Logger = new Logger(FamilyService.name);
+export class GroupService implements IGroupService {
+  private readonly logger: Logger = new Logger(GroupService.name);
 
   constructor(
     private readonly dataSource: DataSource,
-    @InjectRepository(Family) private readonly repository: Repository<Family>,
+    @InjectRepository(Group) private readonly repository: Repository<Group>,
   ) {}
 
-  async save(req: CreateFamilyRequest): Promise<DetailFamilyResponse> {
+  async save(churchId: number, userId: number, req: CreateFamilyRequest): Promise<void> {
     const qr = this.dataSource.createQueryRunner();
     await qr.startTransaction();
 
@@ -31,13 +31,12 @@ export class FamilyService implements IFamilyService {
       const [leader, subLeader] = await this.getUpdatedNewLeaders(qr, church.id, req.leaderId, req.subLeaderId);
 
       // save Family
-      const family = await qr.manager.save(Family.of(church, req.name, leader!, subLeader));
+      const family = await qr.manager.save(Group.of(church, leader!, req.name, 1));
 
       // update leader & subleader Cell
       await Promise.all([this.updateLeaderCell(qr, family, leader), this.updateLeaderCell(qr, family, subLeader)]);
 
       await qr.commitTransaction();
-      return new DetailFamilyResponse(family);
     } catch (e) {
       this.logger.error(`Failed Save Family Error: ${e.message}`);
       await qr.rollbackTransaction();
@@ -47,22 +46,22 @@ export class FamilyService implements IFamilyService {
     }
   }
 
-  async findAll(churchId: number, offset: number, limit: number): Promise<FamilyListResponse> {
+  async findAll(churchId: number, offset: number, limit: number): Promise<GroupListResponse> {
     const [families, count] = await this.repository.findAndCount({
       where: { churchId },
       skip: offset,
       take: limit,
     });
-    return new FamilyListResponse(families, count);
+    return new GroupListResponse(families, count);
   }
 
-  async findById(churchId: number, id: number): Promise<DetailFamilyResponse> {
+  async findById(churchId: number, id: number): Promise<GroupResponse> {
     const selected = await this.repository.findOneOrFail({
       where: { churchId, id },
       relations: ['leader', 'subLeader', 'cells'],
     });
 
-    return new DetailFamilyResponse(selected);
+    return new GroupResponse(selected);
   }
 
   async isUsedName(churchId: number, name: string): Promise<ValidateResponse> {
@@ -70,42 +69,41 @@ export class FamilyService implements IFamilyService {
     return new ValidateResponse(family ? true : false);
   }
 
-  async update(churchId: number, id: number, req: UpdateFamilyRequest): Promise<DetailFamilyResponse> {
+  async update(churchId: number, id: number, req: UpdateFamilyRequest): Promise<void> {
     const qr = this.dataSource.createQueryRunner();
     await qr.startTransaction();
 
     try {
-      const target = await qr.manager.findOneOrFail(Family, {
+      const target = await qr.manager.findOneOrFail(Group, {
         where: { churchId, id },
         relations: ['leader', 'subLeader'],
       });
-      target.changeName(req.name);
+      // target.changeName(req.name);
 
-      // check request leaderId & request leaderId
-      if (this.isEqualUpdateLeaderRequest(target, req.leaderId, req.subLeaderId)) {
-        const updated = await qr.manager.save(target);
-        await qr.commitTransaction();
-        return new DetailFamilyResponse(updated);
-      }
+      // // check request leaderId & request leaderId
+      // if (this.isEqualUpdateLeaderRequest(target, req.leaderId, req.subLeaderId)) {
+      //   const updated = await qr.manager.save(target);
+      //   await qr.commitTransaction();
+      //   return new DetailFamilyResponse(updated);
+      // }
 
-      // prev leader 처리
-      await Promise.all([
-        this.updatePrevFamilyLeader(qr, target.leader),
-        this.updatePrevFamilyLeader(qr, target.subLeader),
-      ]);
+      // // prev leader 처리
+      // await Promise.all([
+      //   this.updatePrevFamilyLeader(qr, target.leader),
+      //   this.updatePrevFamilyLeader(qr, target.subLeader),
+      // ]);
 
-      // new Family Leaders
-      const [leader, subLeader] = await this.getUpdatedNewLeaders(qr, churchId, req.leaderId, req.subLeaderId);
-      target.changeLeader(leader!);
-      target.changeSubLeader(subLeader);
+      // // new Family Leaders
+      // const [leader, subLeader] = await this.getUpdatedNewLeaders(qr, churchId, req.leaderId, req.subLeaderId);
+      // target.changeLeader(leader!);
+      // target.changeSubLeader(subLeader);
 
-      // update leader & subleader Cell
-      await Promise.all([this.updateLeaderCell(qr, target, leader), this.updateLeaderCell(qr, target, subLeader)]);
+      // // update leader & subleader Cell
+      // await Promise.all([this.updateLeaderCell(qr, target, leader), this.updateLeaderCell(qr, target, subLeader)]);
 
-      // update Family
-      const updatedFamily = await qr.manager.save(target);
-      await qr.commitTransaction();
-      return new DetailFamilyResponse(updatedFamily);
+      // // update Family
+      // const updatedFamily = await qr.manager.save(target);
+      // await qr.commitTransaction();
     } catch (e) {
       this.logger.error(`Failed Update Family Error: ${e.message}`);
       await qr.rollbackTransaction();
@@ -121,20 +119,13 @@ export class FamilyService implements IFamilyService {
 
     try {
       // target 찾기
-      const target = await qr.manager.findOneOrFail(Family, {
+      const target = await qr.manager.findOneOrFail(Group, {
         where: { churchId, id },
         relations: ['leader', 'subLeader', 'cells'],
       });
 
       // prev leader 처리
-      await Promise.all([
-        this.updatePrevFamilyLeader(qr, target.leader, true),
-        this.updatePrevFamilyLeader(qr, target.subLeader, true),
-      ]);
-
-      if (this.resultCell(target.cells, target.leaderId, target.subLeaderId)) {
-        throw new BadRequestException('해당 팸에 소속된 셀이 존재합니다.');
-      }
+      await Promise.all([this.updatePrevFamilyLeader(qr, target.leader, true)]);
 
       // delete Family
       await qr.manager.remove(target);
@@ -178,18 +169,17 @@ export class FamilyService implements IFamilyService {
     return [leader, subLeader];
   }
 
-  private async updateLeaderCell(qr: QueryRunner, family: Family, leader: User | null): Promise<void> {
-    if (!leader) return;
-
-    const cell = await qr.manager.findOneBy(Cell, { leaderId: leader.id });
-    if (!cell) return;
-
-    cell.changeFamily(family);
-    await qr.manager.save(Cell, cell);
+  private async updateLeaderCell(qr: QueryRunner, group: Group, leader: User | null): Promise<void> {
+    // if (!leader) return;
+    // const cell = await qr.manager.findOneBy(Cell, { leaderId: leader.id });
+    // if (!cell) return;
+    // cell.changeFamily(Group);
+    // await qr.manager.save(Cell, cell);
   }
 
-  private isEqualUpdateLeaderRequest(family: Family, leaderId: number, subLeaderId: number | null): boolean {
-    return leaderId === family.leader.id && subLeaderId === family.subLeader?.id;
+  private isEqualUpdateLeaderRequest(group: Group, leaderId: number, subLeaderId: number | null): boolean {
+    // return leaderId === family.leader.id && subLeaderId === family.subLeader?.id;
+    return true;
   }
 
   private async updatePrevFamilyLeader(qr: QueryRunner, leader: User | null, isDelete: boolean = false): Promise<void> {

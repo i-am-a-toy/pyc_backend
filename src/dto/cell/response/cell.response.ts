@@ -10,7 +10,7 @@ export class CellResponse {
   constructor(cell: Cell) {
     this.id = cell.id;
     this.churchId = cell.churchId;
-    this.familyId = cell.familyId;
+    this.familyId = cell.groupId;
     this.leaderId = cell.leaderId;
     this.name = cell.name;
   }

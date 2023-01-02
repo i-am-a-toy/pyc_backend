@@ -6,7 +6,7 @@ import { Calendar } from 'src/entities/calendar-event/calendar.entity';
 import { Cell } from 'src/entities/cell/cell.entity';
 import { Church } from 'src/entities/church/church.entity';
 import { LastModifier } from 'src/entities/embedded/last-modifier.entity';
-import { Family } from 'src/entities/family/family.entity';
+import { Family } from 'src/entities/group/group.entity';
 import { User } from 'src/entities/user/user.entity';
 import { Gender } from 'src/types/gender/gender.type';
 import { Rank } from 'src/types/rank/rank.type';

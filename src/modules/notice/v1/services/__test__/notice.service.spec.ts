@@ -9,7 +9,7 @@ import { Cell } from 'src/entities/cell/cell.entity';
 import { Church } from 'src/entities/church/church.entity';
 import { Creator } from 'src/entities/embedded/creator.entity';
 import { LastModifier } from 'src/entities/embedded/last-modifier.entity';
-import { Family } from 'src/entities/family/family.entity';
+import { Family } from 'src/entities/group/group.entity';
 import { Notice } from 'src/entities/notice/notice.entity';
 import { User } from 'src/entities/user/user.entity';
 import { SortType } from 'src/enum/sort-type.enum';
