@@ -42,7 +42,7 @@ describe('Transactional Decorator Test', () => {
 
     //when
     //then
-    expect(namespace.runPromise(async () => Promise.resolve().then(mock.greeting))).rejects.toThrowError(
+    await expect(namespace.runPromise(async () => Promise.resolve().then(mock.greeting))).rejects.toThrowError(
       new InternalServerErrorException(`Could not find EntityManager in ${PYC_NAMESPACE} nameSpace`),
     );
   });
@@ -51,17 +51,23 @@ describe('Transactional Decorator Test', () => {
     //given
     const mock = new Greeting();
     const namespace = createNamespace(PYC_NAMESPACE);
-    const entityManager = new EntityManager(
-      new DataSource({ type: 'sqlite', database: ':memory:', synchronize: true, logging: true }),
-    );
-    await entityManager.transaction(async (tx) => await tx.query('SELECT 1 + 1'));
 
-    // await namespace.runPromise(async () =>
-    //   Promise.resolve()
-    //     .then(() => {
-    //       namespace.set<EntityManager>(PYC_ENTITY_MANAGER, entityManager);
-    //     })
-    //     .then(mock.greeting),
-    // );
+    const dataSource = await new DataSource({
+      type: 'sqlite',
+      database: ':memory:',
+      synchronize: true,
+      logging: true,
+    }).initialize();
+    const em = dataSource.createEntityManager();
+
+    await expect(
+      namespace.runPromise(async () =>
+        Promise.resolve()
+          .then(() => {
+            namespace.set<EntityManager>(PYC_ENTITY_MANAGER, em);
+          })
+          .then(mock.greeting),
+      ),
+    ).resolves.not.toThrowError();
   });
 });
