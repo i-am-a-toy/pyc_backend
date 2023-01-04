@@ -2,6 +2,7 @@ import {
   getMonthFirstDay,
   getMonthLastDay,
   getMonthString,
+  getPrevMonthLastDay,
   getYearFirstDay,
   getYearLastDay,
   getYearString,
@@ -24,7 +25,7 @@ describe('Custom Date Function', () => {
     const date = new Date('2022-11-03');
 
     //when
-    const result = getMonthString(date);
+    const result = getMonthString(date.getMonth());
 
     //then
     expect(result).toBe('11');
@@ -72,5 +73,28 @@ describe('Custom Date Function', () => {
 
     //then
     expect(result).toEqual(new Date('2022-12-31'));
+  });
+
+  it('get Prev Month Last Day', () => {
+    //given
+    const date = new Date('2022-12-01');
+    const copyDate = new Date(date);
+
+    //when
+    copyDate.setHours(-1);
+
+    //then
+    expect(`${copyDate.getFullYear()}-${getMonthString(copyDate.getMonth())}-${copyDate.getDate()}`).toBe('2022-11-30');
+  });
+
+  it('getPrevMonthLastDay', () => {
+    //given
+    const date = new Date('2022-12-01');
+
+    //when
+    const prevLastMonthLastDay = getPrevMonthLastDay(date);
+
+    //then
+    expect(prevLastMonthLastDay).toStrictEqual(new Date('2022-11-30'));
   });
 });

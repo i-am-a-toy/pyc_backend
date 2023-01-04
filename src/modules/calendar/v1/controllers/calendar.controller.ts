@@ -6,6 +6,7 @@ import { CreateCalendarRequest } from 'src/dto/calendar/requests/create-calendar
 import { UpdateCalendarRequest } from 'src/dto/calendar/requests/update-calendar.request';
 import { CalendarListResponse } from 'src/dto/calendar/responses/calendar-list.response';
 import { PycUser } from 'src/dto/common/dto/pyc-user.dto';
+import { getJsMonth, getMonthString } from 'src/utils/date';
 import { ICalendarService } from '../interfaces/calendar-service.interface';
 import { CalendarServiceKey } from '../services/calendar.service';
 
@@ -19,7 +20,8 @@ export class CalendarController {
     @Query() query: CalendarListQuery,
   ): Promise<CalendarListResponse> {
     const { year, month, offset, limit } = query;
-    return this.service.getCalendarsByMonth(pycUser, new Date(`${year}-${month}`), { offset, limit });
+    const monthString = getMonthString(getJsMonth(Number(month)));
+    return this.service.getCalendarsByMonth(pycUser, new Date(`${year}-${monthString}`), { offset, limit });
   }
 
   @Post()
