@@ -42,7 +42,7 @@ export class Cell extends BaseTimeEntity {
     return cell;
   }
 
-  changeFamily(group: Group | null): void {
+  changeGroup(group: Group | null): void {
     this.group = group;
   }
 
