@@ -1,6 +1,5 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 import { BaseTimeEntity } from '../base-time.entity';
-import { Cell } from '../cell/cell.entity';
 import { Church } from '../church/church.entity';
 import { User } from '../user/user.entity';
 
@@ -19,7 +18,7 @@ export class Group extends BaseTimeEntity {
     nullable: true,
     comment: '그룹 리더의 Id',
   })
-  leaderId: number;
+  leaderId: number | null;
 
   @OneToOne(() => User)
   @JoinColumn({ name: 'leader_id' })
@@ -45,20 +44,8 @@ export class Group extends BaseTimeEntity {
   }
 
   updateGroup(leader: User, name: string, userId: number) {
-    this.changeLeader(leader);
-    this.changeName(name);
-    this.changeLastModifiedBy(userId);
-  }
-
-  private changeName(name: string): void {
     this.name = name;
-  }
-
-  private changeLeader(leader: User): void {
     this.leader = leader;
-  }
-
-  private changeLastModifiedBy(userId: number) {
     this.lastModifiedBy = userId;
   }
 }
