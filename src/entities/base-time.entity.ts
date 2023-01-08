@@ -1,6 +1,7 @@
+import { RootEntity } from 'src/core/database/generic/root-entity';
 import { CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-export abstract class BaseTimeEntity {
+export abstract class BaseTimeEntity extends RootEntity {
   @PrimaryGeneratedColumn({ unsigned: true })
   id: number;
 
