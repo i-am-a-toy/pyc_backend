@@ -1,21 +1,20 @@
-import { ValidateResponse } from 'src/dto/common/responses/validate.response';
-import { CreateFamilyRequest } from 'src/dto/family/requests/create-family.request';
-import { UpdateFamilyRequest } from 'src/dto/family/requests/update-family.request';
-import { GroupListResponse } from 'src/dto/family/responses/group-list.response';
-import { GroupResponse } from 'src/dto/family/responses/group.response';
+import { PycUser } from 'src/dto/common/dto/pyc-user.dto';
+import { CreateGroupRequest } from 'src/dto/group/requests/create-group.request';
+import { UpdateGroupRequest } from 'src/dto/group/requests/update-group.request';
+import { GroupListResponse } from 'src/dto/group/responses/group-list.response';
+import { GroupResponse } from 'src/dto/group/responses/group.response';
 
 export interface IGroupService {
   //C
-  save(churchId: number, userId: number, req: CreateFamilyRequest): Promise<void>;
+  save(pycUser: PycUser, req: CreateGroupRequest): Promise<void>;
 
   //R
-  findAll(churchId: number, offset: number, limit: number): Promise<GroupListResponse>;
-  findById(churchId: number, id: number): Promise<GroupResponse>;
-  isUsedName(churchId: number, name: string): Promise<ValidateResponse>;
+  findAll(pycUser: PycUser, offset: number, limit: number): Promise<GroupListResponse>;
+  findById(id: number): Promise<GroupResponse>;
 
   // U
-  update(churchId: number, id: number, req: UpdateFamilyRequest): Promise<void>;
+  update(pycUser: PycUser, id: number, req: UpdateGroupRequest): Promise<void>;
 
   //D
-  deleteById(churchId: number, id: number): Promise<void>;
+  deleteById(id: number): Promise<void>;
 }
