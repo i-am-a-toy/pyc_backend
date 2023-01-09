@@ -131,6 +131,12 @@ export class User extends BaseTimeEntity {
     return e;
   }
 
+  changeToGroupLeaderRole() {
+    if (this.role.code >= Role.LEADER.code) {
+      this.role = Role.GROUP_LEADER;
+    }
+  }
+
   // update
   changeCell(cell: Cell) {
     this.cell = cell;
