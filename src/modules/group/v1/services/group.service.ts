@@ -62,9 +62,7 @@ export class GroupService implements IGroupService {
       throw new NotFoundException('리더를 찾을 수 없습니다.');
     }
 
-    if (leader.role.code >= Role.MEMBER.code) {
-      leader.changeRole(Role.GROUP_LEADER);
-    }
+    leader.changeToGroupLeaderRole();
     await this.userRepository.save(leader);
     await this.groupRepository.save(Group.of(church, leader, name, userId));
   }
@@ -140,7 +138,7 @@ export class GroupService implements IGroupService {
 
     const newLeader = await this.userRepository.findById(req.leaderId);
     if (!newLeader) throw new NotFoundException('그룹의 리더가 될 대상을 찾을 수 없습니다.');
-    newLeader.changeRole(Role.GROUP_LEADER);
+    newLeader.changeToGroupLeaderRole();
     await this.userRepository.save([newLeader]);
 
     // process Group Leader
@@ -174,6 +172,16 @@ export class GroupService implements IGroupService {
     await this.groupRepository.remove(group);
   }
 
+  /**
+   * processPrevLeader
+   *
+   * @description Group의 이전 Leader에 대한 처를 하는 private method
+   * 이전 Leader가 Cell Leader라면 해당 Leader의 Role을 Leader로 변경
+   * 이전 Leader가 Cell Leader가 아니면 Leader를 내려놓은 것으로 판단하여 Role을 Member로 변경 및 Password 삭제
+   *
+   * @param prevLeader {@link User}: Group의 prev Leader
+   * @param options: 해당 method를 호출 할 때 update에서 호출인지 delete에서 호출인지 판별할 수 있는 구분자
+   */
   private async processPrevLeader(prevLeader: User, options: { isDelete: boolean }): Promise<void> {
     const prevLeaderCell = await this.cellRepository.findByLeaderId(prevLeader.id);
 

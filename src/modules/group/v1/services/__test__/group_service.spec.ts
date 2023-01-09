@@ -4,6 +4,8 @@ import { TransactionManager } from 'src/core/database/typeorm/transaction.manage
 import { PYC_ENTITY_MANAGER, PYC_NAMESPACE } from 'src/core/database/typeorm/transaction.middleware';
 import { PycUser } from 'src/dto/common/dto/pyc-user.dto';
 import { CreateGroupRequest } from 'src/dto/group/requests/create-group.request';
+import { UpdateGroupLeaderRequest } from 'src/dto/group/requests/update-group-leader.request';
+import { UpdateGroupNameRequest } from 'src/dto/group/requests/update-group-name.request';
 import { GroupListResponse } from 'src/dto/group/responses/group-list.response';
 import { UserResponse } from 'src/dto/user/responses/user.response';
 import { ICellRepository } from 'src/entities/cell/cell-repository.interface';
@@ -260,6 +262,148 @@ describe('Group Service Test', () => {
       expect(result.name).toBe('groupA');
       expect(result.leader).toStrictEqual(new UserResponse(leaderA));
     });
+  });
+
+  it('updateName - target이 존재하지 않는 경우', async () => {
+    //given
+    const pycUser = new PycUser('1', 1, 1, 'foobar', Role.LEADER);
+    const id = 1;
+    const req: UpdateGroupNameRequest = { name: 'foobar' };
+
+    //when
+    //then
+    await expect(
+      nameSpace.runPromise(async () => {
+        await Promise.resolve().then(() => nameSpace.set(PYC_ENTITY_MANAGER, dataSource.createEntityManager()));
+        await groupService.updateName(pycUser, id, req);
+      }),
+    ).rejects.toThrowError(new NotFoundException('그룹을 찾을 수 없습니다.'));
+  });
+
+  it('updateName - 이름이 중복되는 경우', async () => {
+    //given
+    const [churchA] = await dataSource.manager.save(Church, mockChurchs);
+    const [leaderA, leaderB] = await dataSource.manager.save(User, getMockUsers(churchA));
+    const [groupA] = await dataSource.manager.save(Group, [
+      Group.of(churchA, leaderA, 'groupA', leaderA.id),
+      Group.of(churchA, leaderB, 'groupB', leaderB.id),
+    ]);
+    const pycUser = new PycUser('1', churchA.id, 1, 'foobar', Role.LEADER);
+    const req: UpdateGroupNameRequest = { name: 'groupB' };
+
+    //when
+    //then
+    await expect(
+      nameSpace.runPromise(async () => {
+        await Promise.resolve().then(() => nameSpace.set(PYC_ENTITY_MANAGER, dataSource.createEntityManager()));
+        await groupService.updateName(pycUser, groupA.id, req);
+      }),
+    ).rejects.toThrowError(new ConflictException('이미 존재하는 이름입니다.'));
+  });
+
+  it('updateName Test', async () => {
+    //given
+    const [churchA] = await dataSource.manager.save(Church, mockChurchs);
+    const [leaderA] = await dataSource.manager.save(User, getMockUsers(churchA));
+    const [groupA] = await dataSource.manager.save(Group, [Group.of(churchA, leaderA, 'groupA', leaderA.id)]);
+    const pycUser = new PycUser('1', churchA.id, 1, 'foobar', Role.LEADER);
+    const req: UpdateGroupNameRequest = { name: 'groupC' };
+
+    //when
+    await nameSpace.runPromise(async () => {
+      await Promise.resolve().then(() => nameSpace.set(PYC_ENTITY_MANAGER, dataSource.createEntityManager()));
+      await groupService.updateName(pycUser, groupA.id, req);
+    });
+
+    //then
+    const updated = await dataSource.manager.findOneByOrFail(Group, { id: 1 });
+    expect(updated.name).toBe('groupC');
+  });
+
+  it('updateLeader - target이 존재하지 않는 경우', async () => {
+    //given
+    const pycUser = new PycUser('1', 1, 1, 'foobar', Role.LEADER);
+    const id = 1;
+    const req: UpdateGroupLeaderRequest = { leaderId: 1 };
+
+    //when
+    //then
+    await expect(
+      nameSpace.runPromise(async () => {
+        await Promise.resolve().then(() => nameSpace.set(PYC_ENTITY_MANAGER, dataSource.createEntityManager()));
+        await groupService.updateLeader(pycUser, id, req);
+      }),
+    ).rejects.toThrowError(new NotFoundException('그룹을 찾을 수 없습니다.'));
+  });
+
+  it('updateLeader - 새로운 Leader가 존재하지 않는 경우', async () => {
+    //given
+    const [churchA] = await dataSource.manager.save(Church, mockChurchs);
+    const [leaderA] = await dataSource.manager.save(User, getMockUsers(churchA));
+    const [groupA] = await dataSource.manager.save(Group, [Group.of(churchA, leaderA, 'groupA', leaderA.id)]);
+    const pycUser = new PycUser('1', churchA.id, 1, 'foobar', Role.LEADER);
+    const req: UpdateGroupLeaderRequest = { leaderId: 999 };
+
+    //when
+    //then
+    await expect(
+      nameSpace.runPromise(async () => {
+        await Promise.resolve().then(() => nameSpace.set(PYC_ENTITY_MANAGER, dataSource.createEntityManager()));
+        await groupService.updateLeader(pycUser, groupA.id, req);
+      }),
+    ).rejects.toThrowError(new NotFoundException('그룹의 리더가 될 대상을 찾을 수 없습니다.'));
+  });
+
+  it('updateLeader - 기존 리더가 Cell Leader가 아닌 경우', async () => {
+    //given
+    const [churchA] = await dataSource.manager.save(Church, mockChurchs);
+    const [leaderA, leaderB] = await dataSource.manager.save(User, getMockUsers(churchA));
+    const [groupA] = await dataSource.manager.save(Group, [Group.of(churchA, leaderA, 'groupA', leaderA.id)]);
+    const pycUser = new PycUser('1', churchA.id, 1, 'foobar', Role.LEADER);
+    const req: UpdateGroupLeaderRequest = { leaderId: leaderB.id };
+
+    //when
+    await nameSpace.runPromise(async () => {
+      await Promise.resolve().then(() => nameSpace.set(PYC_ENTITY_MANAGER, dataSource.createEntityManager()));
+      await groupService.updateLeader(pycUser, groupA.id, req);
+    });
+
+    //then
+    const prevLeader = await dataSource.manager.findOneByOrFail(User, { id: leaderA.id });
+    expect(prevLeader.role).toStrictEqual(Role.MEMBER);
+    expect(prevLeader.password).toBeNull();
+
+    const newLeader = await dataSource.manager.findOneByOrFail(User, { id: leaderB.id });
+    expect(newLeader.role).toStrictEqual(Role.GROUP_LEADER);
+
+    const group = await dataSource.manager.findOneOrFail(Group, { where: { id: groupA.id }, relations: ['leader'] });
+    expect(group.leaderId).toBe(2);
+  });
+
+  it('updateLeader - 기존 리더가 Cell Leader인 경우', async () => {
+    //given
+    const [churchA] = await dataSource.manager.save(Church, mockChurchs);
+    const [leaderA, leaderB] = await dataSource.manager.save(User, getMockUsers(churchA));
+    const [groupA] = await dataSource.manager.save(Group, [Group.of(churchA, leaderA, 'groupA', leaderA.id)]);
+    await dataSource.manager.save(Cell, [Cell.of(churchA, groupA, leaderA)]);
+    const pycUser = new PycUser('1', churchA.id, 1, 'foobar', Role.LEADER);
+    const req: UpdateGroupLeaderRequest = { leaderId: leaderB.id };
+
+    //when
+    await nameSpace.runPromise(async () => {
+      await Promise.resolve().then(() => nameSpace.set(PYC_ENTITY_MANAGER, dataSource.createEntityManager()));
+      await groupService.updateLeader(pycUser, groupA.id, req);
+    });
+
+    //then
+    const prevLeader = await dataSource.manager.findOneByOrFail(User, { id: leaderA.id });
+    expect(prevLeader.role).toStrictEqual(Role.LEADER);
+
+    const newLeader = await dataSource.manager.findOneByOrFail(User, { id: leaderB.id });
+    expect(newLeader.role).toStrictEqual(Role.GROUP_LEADER);
+
+    const group = await dataSource.manager.findOneOrFail(Group, { where: { id: groupA.id }, relations: ['leader'] });
+    expect(group.leaderId).toBe(2);
   });
 
   it('deleteById Test - target이 존재하지 않는 경우', async () => {
