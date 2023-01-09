@@ -3,7 +3,6 @@ import { PycContext } from 'src/core/decorator/pyc-user.decorator';
 import { PycUser } from 'src/dto/common/dto/pyc-user.dto';
 import { PaginationQuery } from 'src/dto/common/requests/pagination.query';
 import { CreateGroupRequest } from 'src/dto/group/requests/create-group.request';
-import { UpdateGroupRequest } from 'src/dto/group/requests/update-group.request';
 import { GroupListResponse } from 'src/dto/group/responses/group-list.response';
 import { GroupResponse } from 'src/dto/group/responses/group.response';
 import { IGroupService } from '../interfaces/group-service.interface';
@@ -15,7 +14,7 @@ export class GroupController {
 
   @Get()
   findAll(@PycContext() pycUser: PycUser, @Query() req: PaginationQuery): Promise<GroupListResponse> {
-    return this.service.findAll(pycUser.churchId, req.offset, req.limit);
+    return this.service.findAll(pycUser, req.offset, req.limit);
   }
 
   @Get('/:id')
@@ -26,15 +25,6 @@ export class GroupController {
   @Post()
   async save(@PycContext() pycUser: PycUser, @Body() req: CreateGroupRequest): Promise<void> {
     await this.service.save(pycUser.churchId, pycUser.userId, req);
-  }
-
-  @Put('/:id')
-  async update(
-    @PycContext() pycUser: PycUser,
-    @Param('id', ParseIntPipe) id: number,
-    @Body() req: UpdateGroupRequest,
-  ): Promise<void> {
-    await this.service.update(pycUser.churchId, id, req);
   }
 
   @Delete('/:id')

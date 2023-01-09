@@ -2,7 +2,8 @@ import { BadRequestException, ConflictException, Inject, Logger, NotFoundExcepti
 import { Transactional } from 'src/core/decorator/transactional.decorator';
 import { PycUser } from 'src/dto/common/dto/pyc-user.dto';
 import { CreateGroupRequest } from 'src/dto/group/requests/create-group.request';
-import { UpdateGroupRequest } from 'src/dto/group/requests/update-group.request';
+import { UpdateGroupLeaderRequest } from 'src/dto/group/requests/update-group-leader.request';
+import { UpdateGroupNameRequest } from 'src/dto/group/requests/update-group-name.request';
 import { GroupListResponse } from 'src/dto/group/responses/group-list.response';
 import { GroupResponse } from 'src/dto/group/responses/group.response';
 import { ICellRepository } from 'src/entities/cell/cell-repository.interface';
@@ -13,6 +14,7 @@ import { IGroupRepository } from 'src/entities/group/group-repository.interface'
 import { Group } from 'src/entities/group/group.entity';
 import { GroupRepository } from 'src/entities/group/group.repository';
 import { IUserRepository } from 'src/entities/user/user-repository.interface';
+import { User } from 'src/entities/user/user.entity';
 import { UserRepository } from 'src/entities/user/user.repository';
 import { Role } from 'src/types/role/role.type';
 import { IGroupService } from '../interfaces/group-service.interface';
@@ -40,14 +42,15 @@ export class GroupService implements IGroupService {
   @Transactional()
   async save(pycUser: PycUser, req: CreateGroupRequest): Promise<void> {
     const { churchId, userId } = pycUser;
+    const { leaderId, name } = req;
 
     const church = await this.churchRepository.findById(churchId);
     if (!church) {
       this.logger.warn(`Could not find Church with Id: ${churchId}`);
       throw new NotFoundException(`교회를 찾을 수 없습니다.`);
     }
-    const { leaderId, name } = req;
-    const isExist = await this.groupRepository.findByName(churchId, name);
+
+    const isExist = await this.isExistName(churchId, name);
     if (isExist) {
       this.logger.warn(`Could not use ${name}, is Exist`);
       throw new ConflictException(`이미 존재하는 이름입니다.`);
@@ -59,7 +62,9 @@ export class GroupService implements IGroupService {
       throw new NotFoundException('리더를 찾을 수 없습니다.');
     }
 
-    leader.changeRole(Role.GROUP_LEADER);
+    if (leader.role.code >= Role.MEMBER.code) {
+      leader.changeRole(Role.GROUP_LEADER);
+    }
     await this.userRepository.save(leader);
     await this.groupRepository.save(Group.of(church, leader, name, userId));
   }
@@ -91,45 +96,57 @@ export class GroupService implements IGroupService {
   }
 
   /**
-   * update
+   * updateName
    *
-   * @description Group의 Id와 그룹 LeaderId, 그룹 명을 받아 Group을 Update
+   * @description Group의 Id와 그룹 변경할 이름을 받아 Group의 이름 수정
+   * @throws 그룹 수정에 필요한 데이터가 존재하지 않는 경우{@link NotFoundException}
+   * @throws 그룹의 이름이 중복 되는 경우 {@link ConflictException}
+   *
+   * @param pycUser {@link pycUser}
+   * @param id
+   * @param req {@link UpdateGroupRequest}
+   */
+  @Transactional()
+  async updateName(pycUser: PycUser, id: number, req: UpdateGroupNameRequest): Promise<void> {
+    const group = await this.groupRepository.findById(id);
+    if (!group) throw new NotFoundException('그룹을 찾을 수 없습니다.');
+
+    // check is Update Name & duplicate
+    const isExist = await this.isExistName(pycUser.churchId, req.name);
+    if (group.name != req.name && isExist) {
+      this.logger.warn(`Could not use ${req.name}, is Exist`);
+      throw new ConflictException(`이미 존재하는 이름입니다.`);
+    }
+    group.changeName(req.name, pycUser.userId);
+    await this.groupRepository.save(group);
+  }
+
+  /**
+   * updateLeader
+   *
+   * @description Group의 Id와 그룹 LeaderId, 받아 Group의 Leader를 변경
    * 기존 그룹의 Leader가 Cell의 Leader인 경우를 판단하여 해당 User의 정보를 수정해준다.
    * 만약 Cell리더가 아니라면 해당 User를 Member로 변경
    * 새로운 그룹의 Leader의 Role은 Group Leader로 변경 된다.
    * @throws 그룹 수정에 필요한 데이터가 존재하지 않는 경우{@link NotFoundException}
-   * @throws 그룹의 이름이 중복 되는 경우 {@link ConflictException}
    *
-   * @param pycUser
+   * @param pycUser {@link pycUser}
    * @param id
-   * @param req
+   * @param req {@link UpdateGroupLeaderRequest}
    */
-  @Transactional()
-  async update(pycUser: PycUser, id: number, req: UpdateGroupRequest): Promise<void> {
+  async updateLeader(pycUser: PycUser, id: number, req: UpdateGroupLeaderRequest): Promise<void> {
     const group = await this.groupRepository.findById(id);
     if (!group) throw new NotFoundException('그룹을 찾을 수 없습니다.');
 
-    if (group.name != req.name) {
-      const isExist = await this.groupRepository.findByName(pycUser.churchId, req.name);
-      if (!isExist) {
-        this.logger.warn(`Could not use ${name}, is Exist`);
-        throw new ConflictException(`이미 존재하는 이름입니다.`);
-      }
-    }
-
     const newLeader = await this.userRepository.findById(req.leaderId);
     if (!newLeader) throw new NotFoundException('그룹의 리더가 될 대상을 찾을 수 없습니다.');
-
-    if (group.leader) {
-      const prevLeaderCell = await this.cellRepository.findByLeaderId(group.leader.id);
-      prevLeaderCell ? group.leader.changeRole(Role.LEADER) : group.leader.putDownLeader();
-      await this.userRepository.save([group.leader]);
-    }
-
     newLeader.changeRole(Role.GROUP_LEADER);
     await this.userRepository.save([newLeader]);
 
-    group.updateGroup(newLeader, req.name, pycUser.userId);
+    // process Group Leader
+    if (group.leader) await this.processPrevLeader(group.leader, { isDelete: false });
+
+    group.changeLeader(newLeader, pycUser.userId);
     await this.groupRepository.save(group);
   }
 
@@ -145,22 +162,35 @@ export class GroupService implements IGroupService {
    */
   @Transactional()
   async deleteById(id: number): Promise<void> {
-    const isExist = await this.cellRepository.isExistByGroupId(id);
-    if (isExist) throw new BadRequestException('하위 셀이 존재하여 삭제할 수 없습니다.');
-
     const group = await this.groupRepository.findById(id);
     if (!group) return;
 
-    if (group.leader) {
-      const leaderCell = await this.cellRepository.findByLeaderId(group.leader.id);
-      leaderCell
-        ? (group.leader.changeRole(Role.LEADER),
-          leaderCell.changeGroup(null),
-          await this.cellRepository.save(leaderCell))
-        : group.leader.putDownLeader();
-      await this.userRepository.save(group.leader);
-    }
+    const isExist = await this.cellRepository.isExistByGroupId(id, group.leader!.id);
+    if (isExist) throw new BadRequestException('하위 셀이 존재하여 삭제할 수 없습니다.');
+
+    // process Group Leader
+    if (group.leader) await this.processPrevLeader(group.leader, { isDelete: true });
 
     await this.groupRepository.remove(group);
+  }
+
+  private async processPrevLeader(prevLeader: User, options: { isDelete: boolean }): Promise<void> {
+    const prevLeaderCell = await this.cellRepository.findByLeaderId(prevLeader.id);
+
+    // update prevLeader Role & password
+    prevLeaderCell ? prevLeader.changeRole(Role.LEADER) : prevLeader.putDownLeader();
+
+    // update prevLeader Group to null
+    if (prevLeaderCell && options.isDelete) {
+      prevLeaderCell.changeGroup(null);
+      await this.cellRepository.save(prevLeaderCell);
+    }
+
+    await this.userRepository.save(prevLeader);
+  }
+
+  private async isExistName(churchId: number, name: string): Promise<boolean> {
+    const isExist = await this.groupRepository.findByName(churchId, name);
+    return !!isExist;
   }
 }

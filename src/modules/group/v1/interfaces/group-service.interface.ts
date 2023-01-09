@@ -1,6 +1,7 @@
 import { PycUser } from 'src/dto/common/dto/pyc-user.dto';
 import { CreateGroupRequest } from 'src/dto/group/requests/create-group.request';
-import { UpdateGroupRequest } from 'src/dto/group/requests/update-group.request';
+import { UpdateGroupLeaderRequest } from 'src/dto/group/requests/update-group-leader.request';
+import { UpdateGroupNameRequest } from 'src/dto/group/requests/update-group-name.request';
 import { GroupListResponse } from 'src/dto/group/responses/group-list.response';
 import { GroupResponse } from 'src/dto/group/responses/group.response';
 
@@ -13,7 +14,8 @@ export interface IGroupService {
   findById(id: number): Promise<GroupResponse>;
 
   // U
-  update(pycUser: PycUser, id: number, req: UpdateGroupRequest): Promise<void>;
+  updateName(pycUser: PycUser, id: number, req: UpdateGroupNameRequest): Promise<void>;
+  updateLeader(pycUser: PycUser, id: number, req: UpdateGroupLeaderRequest): Promise<void>;
 
   //D
   deleteById(id: number): Promise<void>;

@@ -43,8 +43,12 @@ export class Group extends BaseTimeEntity {
     return e;
   }
 
-  updateGroup(leader: User, name: string, userId: number) {
+  changeName(name: string, userId: number) {
     this.name = name;
+    this.lastModifiedBy = userId;
+  }
+
+  changeLeader(leader: User, userId: number) {
     this.leader = leader;
     this.lastModifiedBy = userId;
   }
