@@ -7,7 +7,7 @@ import { AccessTokenClaim } from 'src/dto/token/access-token-claim.dto';
 import { TokenClaim } from 'src/dto/token/token-claim.dto';
 import { Cell } from 'src/entities/cell/cell.entity';
 import { Church } from 'src/entities/church/church.entity';
-import { Family } from 'src/entities/family/family.entity';
+import { Family } from 'src/entities/group/group.entity';
 import { RefreshToken } from 'src/entities/refresh-token/refresh-token.entity';
 import { User } from 'src/entities/user/user.entity';
 import { TokenServiceKey } from 'src/modules/core/token/interfaces/token-service.interface';

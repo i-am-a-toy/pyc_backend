@@ -1,4 +1,6 @@
 import { genSaltSync, hashSync } from 'bcrypt';
+import * as gravatar from 'gravatar';
+import * as uuid from 'uuid';
 import { UpdateUserRequest } from 'src/dto/user/requests/update-user.request';
 import { GenderTransformer } from 'src/types/gender/gender.transformer';
 import { Gender } from 'src/types/gender/gender.type';
@@ -6,7 +8,7 @@ import { RankTransformer } from 'src/types/rank/rank.transformer';
 import { Rank } from 'src/types/rank/rank.type';
 import { RoleTransformer } from 'src/types/role/role.transformer';
 import { Role } from 'src/types/role/role.type';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseTimeEntity } from '../base-time.entity';
 import { Cell } from '../cell/cell.entity';
 import { Church } from '../church/church.entity';
@@ -101,6 +103,40 @@ export class User extends BaseTimeEntity {
   })
   isLongAbsenced: boolean;
 
+  static of(
+    church: Church,
+    cell: Cell | null,
+    name: string,
+    age: number,
+    role: Role,
+    rank: Rank,
+    gender: Gender,
+    birth: string,
+    address: Address,
+    contact: string,
+    isLongAbsenced: boolean,
+  ): User {
+    const e = new User();
+    e.church = church;
+    e.cell = cell;
+    e.name = name;
+    e.age = age;
+    e.role = role;
+    e.rank = rank;
+    e.gender = gender;
+    e.birth = birth;
+    e.address = address;
+    e.contact = contact;
+    e.isLongAbsenced = isLongAbsenced;
+    return e;
+  }
+
+  changeToGroupLeaderRole() {
+    if (this.role.code >= Role.LEADER.code) {
+      this.role = Role.GROUP_LEADER;
+    }
+  }
+
   // update
   changeCell(cell: Cell) {
     this.cell = cell;
@@ -139,5 +175,16 @@ export class User extends BaseTimeEntity {
     this.address = new Address(req.zipCode ?? '', req.address ?? '');
     this.contact = req.contact;
     this.isLongAbsenced = req.isLongAbsenced;
+  }
+
+  @BeforeInsert()
+  beforeSave() {
+    //encryption
+    if (this.password) {
+      this.password = hashSync(this.password, 10);
+    }
+
+    //set default Image
+    this.image = gravatar.url(this.name + uuid.v4(), { d: 'robohash', protocol: 'https' });
   }
 }

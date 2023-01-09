@@ -12,7 +12,7 @@ export class DetailCellResponse {
   constructor(cell: Cell) {
     this.id = cell.id;
     this.churchId = cell.churchId;
-    this.familyId = cell.familyId;
+    this.familyId = cell.groupId;
     this.leader = new UserResponse(cell.leader);
     this.name = cell.name;
     this.members = cell.members ? cell.members.map((m) => new UserResponse(m)) : [];

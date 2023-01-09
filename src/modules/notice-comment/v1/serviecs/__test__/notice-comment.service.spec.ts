@@ -6,7 +6,7 @@ import { PycUser } from 'src/dto/common/dto/pyc-user.dto';
 import { CreateNoticeCommentRequest } from 'src/dto/notice-comment/requests/create-notice-comment.request';
 import { Cell } from 'src/entities/cell/cell.entity';
 import { Church } from 'src/entities/church/church.entity';
-import { Family } from 'src/entities/family/family.entity';
+import { Family } from 'src/entities/group/group.entity';
 import { NoticeComment } from 'src/entities/notice-comment/notice-comment.entity';
 import { Notice } from 'src/entities/notice/notice.entity';
 import { User } from 'src/entities/user/user.entity';

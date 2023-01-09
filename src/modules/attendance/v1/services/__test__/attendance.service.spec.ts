@@ -6,7 +6,7 @@ import { AttendanceCountResponse } from 'src/dto/attendance/responses/attendance
 import { Attendance } from 'src/entities/attendnace/attendance.entity';
 import { Cell } from 'src/entities/cell/cell.entity';
 import { Church } from 'src/entities/church/church.entity';
-import { Family } from 'src/entities/family/family.entity';
+import { Family } from 'src/entities/group/group.entity';
 import { User } from 'src/entities/user/user.entity';
 import { AttendanceFilter } from 'src/enum/attendance-filter-type.enum';
 import { Gender } from 'src/types/gender/gender.type';

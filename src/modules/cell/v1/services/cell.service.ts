@@ -6,7 +6,7 @@ import { CellListResponse } from 'src/dto/cell/response/cell-list.response';
 import { DetailCellResponse } from 'src/dto/cell/response/detail-cell.response';
 import { Cell } from 'src/entities/cell/cell.entity';
 import { Church } from 'src/entities/church/church.entity';
-import { Family } from 'src/entities/family/family.entity';
+import { Group } from 'src/entities/group/group.entity';
 import { User } from 'src/entities/user/user.entity';
 import { DataSource, QueryRunner, Repository } from 'typeorm';
 import { ICellService } from '../interfaces/cell-service.interface';
@@ -24,13 +24,13 @@ export class CellService implements ICellService {
 
     try {
       const church = await qr.manager.findOneByOrFail(Church, { id: churchId });
-      const family = req.familyId ? await qr.manager.findOneByOrFail(Family, { id: req.familyId }) : null;
+      const family = req.familyId ? await qr.manager.findOneByOrFail(Group, { id: req.familyId }) : null;
       const leader = await qr.manager.findOneByOrFail(User, { id: req.leaderId });
       if (!leader.role.isAbleLeader()) throw new BadRequestException('새신자는 리더가 될 수 없습니다.');
 
       const savedCell = await qr.manager.save(Cell, Cell.of(church, family, leader));
 
-      leader.changeCell(savedCell);
+      // leader.changeCell(savedCell);
       leader.toBeLeader();
       await qr.manager.save(User, leader);
 
@@ -52,7 +52,7 @@ export class CellService implements ICellService {
     limit: number,
   ): Promise<CellListResponse> {
     const [cells, count] = await this.repository.findAndCount({
-      where: { churchId, familyId },
+      // where: { churchId, familyId },
       skip: offset,
       take: limit,
     });
@@ -75,8 +75,8 @@ export class CellService implements ICellService {
       }
 
       //update family & Leader
-      if (target.familyId !== req.familyId && req.familyId) await this.updateFamily(qr, target, churchId, req.familyId);
-      if (target.leaderId !== req.leaderId && req.leaderId) await this.updateLeader(qr, target, churchId, req.leaderId);
+      // if (target.familyId !== req.familyId && req.familyId) await this.updateFamily(qr, target, churchId, req.familyId);
+      // if (target.leaderId !== req.leaderId && req.leaderId) await this.updateLeader(qr, target, churchId, req.leaderId);
 
       const updated = await qr.manager.save(Cell, target);
       await qr.commitTransaction();
@@ -117,13 +117,13 @@ export class CellService implements ICellService {
   }
 
   private isEqualUpdateRequest(cell: Cell, req: UpdateCellRequest): boolean {
-    if (cell.leaderId === req.leaderId || cell.familyId === req.familyId) return true;
+    // if (cell.leaderId === req.leaderId || cell.familyId === req.familyId) return true;
     return false;
   }
 
   private async updateFamily(qr: QueryRunner, cell: Cell, churchId: number, familyId: number): Promise<void> {
-    const family = await qr.manager.findOneByOrFail(Family, { churchId: churchId, id: familyId });
-    cell.changeFamily(family);
+    const family = await qr.manager.findOneByOrFail(Group, { churchId: churchId, id: familyId });
+    // cell.changeFamily(family);
   }
 
   private async updateLeader(qr: QueryRunner, cell: Cell, churchId: number, leaderId: number): Promise<void> {
