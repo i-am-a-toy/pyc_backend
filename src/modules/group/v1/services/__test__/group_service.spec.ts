@@ -49,7 +49,7 @@ describe('Group Service Test', () => {
       password: container.getPassword(),
       synchronize: true,
       entities: [Church, Group, Cell, User],
-      logging: true,
+      // logging: true,
     });
     await dataSource.initialize();
 
@@ -260,5 +260,76 @@ describe('Group Service Test', () => {
       expect(result.name).toBe('groupA');
       expect(result.leader).toStrictEqual(new UserResponse(leaderA));
     });
+  });
+
+  it('deleteById Test - target이 존재하지 않는 경우', async () => {
+    //given
+    const id = 1;
+    //when
+    //then
+    await expect(
+      nameSpace.runPromise(async () => {
+        await Promise.resolve().then(() => nameSpace.set(PYC_ENTITY_MANAGER, dataSource.createEntityManager()));
+        await groupService.deleteById(id);
+      }),
+    ).resolves.not.toThrowError();
+  });
+
+  it('deleteById Test - 해당 Group에 속한 Cell이 있는 경우', async () => {
+    //given
+    const [churchA] = await dataSource.manager.save(Church, mockChurchs);
+    const [leaderA, leaderB] = await dataSource.manager.save(User, getMockUsers(churchA));
+    const [groupA] = await dataSource.manager.save(Group, [Group.of(churchA, leaderA, 'groupA', leaderA.id)]);
+    await dataSource.manager.save(Cell, [Cell.of(churchA, groupA, leaderB)]);
+
+    //when
+    //then
+    await expect(
+      nameSpace.runPromise(async () => {
+        await Promise.resolve().then(() => nameSpace.set(PYC_ENTITY_MANAGER, dataSource.createEntityManager()));
+        await groupService.deleteById(groupA.id);
+      }),
+    ).rejects.toThrowError(new NotFoundException('하위 셀이 존재하여 삭제할 수 없습니다.'));
+  });
+
+  it('deleteById Test - Group Leader의 Cell이 있는 경우', async () => {
+    //given
+    const [churchA] = await dataSource.manager.save(Church, mockChurchs);
+    const [leaderA] = await dataSource.manager.save(User, getMockUsers(churchA));
+    const [groupA] = await dataSource.manager.save(Group, [Group.of(churchA, leaderA, 'groupA', leaderA.id)]);
+    const [leaderACell] = await dataSource.manager.save(Cell, [Cell.of(churchA, groupA, leaderA)]);
+
+    //when
+    await nameSpace.runPromise(async () => {
+      await Promise.resolve().then(() => nameSpace.set(PYC_ENTITY_MANAGER, dataSource.createEntityManager()));
+      await groupService.deleteById(groupA.id);
+    });
+
+    //then
+    const updatedLeaderA = await dataSource.manager.findOneByOrFail(User, { id: leaderA.id });
+    expect(updatedLeaderA.role).toStrictEqual(Role.LEADER);
+    const updatedLeaderACell = await dataSource.manager.findOneByOrFail(Cell, { id: leaderACell.id });
+    expect(updatedLeaderACell.groupId).toBeNull();
+    expect(await dataSource.manager.findOneBy(Group, { id: groupA.id })).toBeNull();
+  });
+
+  it('deleteById Test - Group Leader의 Cell이 없는 경우', async () => {
+    //given
+    const [churchA] = await dataSource.manager.save(Church, mockChurchs);
+    const [leaderA] = await dataSource.manager.save(User, getMockUsers(churchA));
+    const [groupA] = await dataSource.manager.save(Group, [Group.of(churchA, leaderA, 'groupA', leaderA.id)]);
+
+    //when
+    await nameSpace.runPromise(async () => {
+      await Promise.resolve().then(() => nameSpace.set(PYC_ENTITY_MANAGER, dataSource.createEntityManager()));
+      await groupService.deleteById(groupA.id);
+    });
+
+    //then
+    const updatedLeaderA = await dataSource.manager.findOneByOrFail(User, { id: leaderA.id });
+    expect(updatedLeaderA.role).toStrictEqual(Role.MEMBER);
+    expect(updatedLeaderA.cellId).toBeNull();
+    expect(updatedLeaderA.password).toBeNull();
+    expect(await dataSource.manager.findOneBy(Group, { id: groupA.id })).toBeNull();
   });
 });
