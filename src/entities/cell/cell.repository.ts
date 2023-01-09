@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { GenericTypeOrmRepository } from 'src/core/database/typeorm/generic-typeorm.repository';
-import { EntityTarget } from 'typeorm';
+import { EntityTarget, Not } from 'typeorm';
 import { ICellRepository } from './cell-repository.interface';
 import { Cell } from './cell.entity';
 
@@ -14,8 +14,8 @@ export class CellRepository extends GenericTypeOrmRepository<Cell> implements IC
     return this.getRepository().findOneBy({ leaderId: id });
   }
 
-  async isExistByGroupId(id: number): Promise<boolean> {
-    const result = await this.getRepository().find({ where: { groupId: id }, take: 1 });
+  async isExistByGroupId(id: number, leaderId: number): Promise<boolean> {
+    const result = await this.getRepository().find({ where: { groupId: id, leaderId: Not(leaderId) }, take: 1 });
     return result.length ? true : false;
   }
 }
