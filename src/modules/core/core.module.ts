@@ -1,5 +1,5 @@
 import { Global, Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule } from 'src/core/database/typeorm/typeorm.module';
 import { TokenModule } from './token/token.module';
 
 const coreModules = [TokenModule, TypeOrmModule];

@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Inject, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Transactional } from 'src/core/decorator/transactional.decorator';
 import { PycUser } from 'src/dto/common/dto/pyc-user.dto';
 import { CreateGroupRequest } from 'src/dto/group/requests/create-group.request';
@@ -19,6 +19,9 @@ import { UserRepository } from 'src/entities/user/user.repository';
 import { Role } from 'src/types/role/role.type';
 import { IGroupService } from '../interfaces/group-service.interface';
 
+export const GroupServiceKey = 'GroupServiceKey';
+
+@Injectable()
 export class GroupService implements IGroupService {
   private readonly logger: Logger = new Logger(GroupService.name);
 
