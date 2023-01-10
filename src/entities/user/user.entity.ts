@@ -1,6 +1,5 @@
 import { genSaltSync, hashSync } from 'bcrypt';
 import * as gravatar from 'gravatar';
-import * as uuid from 'uuid';
 import { UpdateUserRequest } from 'src/dto/user/requests/update-user.request';
 import { GenderTransformer } from 'src/types/gender/gender.transformer';
 import { Gender } from 'src/types/gender/gender.type';
@@ -9,6 +8,7 @@ import { Rank } from 'src/types/rank/rank.type';
 import { RoleTransformer } from 'src/types/role/role.transformer';
 import { Role } from 'src/types/role/role.type';
 import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import * as uuid from 'uuid';
 import { BaseTimeEntity } from '../base-time.entity';
 import { Cell } from '../cell/cell.entity';
 import { Church } from '../church/church.entity';
@@ -26,7 +26,7 @@ export class User extends BaseTimeEntity {
   @Column({ name: 'cell_id', nullable: true, type: 'integer', comment: '사용자가 속한 셀 ID' })
   cellId: number | null;
 
-  @ManyToOne(() => Cell, (cell) => cell.members)
+  @ManyToOne(() => Cell)
   @JoinColumn({ name: 'cell_id' })
   cell: Cell | null;
 
@@ -135,6 +135,13 @@ export class User extends BaseTimeEntity {
     if (this.role.code >= Role.LEADER.code) {
       this.role = Role.GROUP_LEADER;
     }
+  }
+
+  changeRoleToCellLeader() {
+    if (this.role.code >= Role.MEMBER.code) {
+      this.role = Role.GROUP_LEADER;
+    }
+    this.password = this.password ?? hashSync(process.env['LEADER_INIT_PASSWORD']!, 10);
   }
 
   // update

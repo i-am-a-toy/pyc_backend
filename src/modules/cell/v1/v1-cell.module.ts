@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { CellEntityModuel } from 'src/entities/cell/cell-entity.module';
+import { CellRepositoryModule } from 'src/entities/cell/cell-repository.module';
 
 @Module({
-  imports: [CellEntityModuel],
+  imports: [CellRepositoryModule],
 })
 export class V1CellModule {}

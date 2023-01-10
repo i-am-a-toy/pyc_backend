@@ -10,8 +10,16 @@ export class CellRepository extends GenericTypeOrmRepository<Cell> implements IC
     return Cell.name;
   }
 
+  findById(id: number): Promise<Cell | null> {
+    return this.getRepository().findOne({ where: { id }, relations: ['leader'] });
+  }
+
   findByLeaderId(id: number): Promise<Cell | null> {
     return this.getRepository().findOneBy({ leaderId: id });
+  }
+
+  findByGroupId(groupId: number, offset: number, limit: number): Promise<[Cell[], number]> {
+    return this.getRepository().findAndCount({ where: { groupId }, skip: offset, take: limit });
   }
 
   async isExistByGroupId(id: number, leaderId: number): Promise<boolean> {

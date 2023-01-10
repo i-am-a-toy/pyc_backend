@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 import { BaseTimeEntity } from '../base-time.entity';
 import { Church } from '../church/church.entity';
 import { Group } from '../group/group.entity';
@@ -30,15 +30,19 @@ export class Cell extends BaseTimeEntity {
   @Column({ nullable: false, type: 'varchar', comment: '셀 이름', unique: true })
   name: string;
 
-  @OneToMany(() => User, (user) => user.cell)
-  members: User[];
+  @Column({ type: 'integer', nullable: false, comment: '생성자' })
+  createdBy: number;
 
-  static of(church: Church, group: Group | null, user: User): Cell {
+  @Column({ type: 'integer', nullable: false, comment: '수정자' })
+  lastModifiedBy: number;
+
+  static of(church: Church, group: Group | null, user: User, userId: number): Cell {
     const cell = new Cell();
     cell.church = church;
     cell.group = group;
     cell.leader = user;
     cell.name = `${user.name}셀`;
+    cell.createdBy = userId;
     return cell;
   }
 
